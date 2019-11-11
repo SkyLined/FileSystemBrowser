@@ -1,0 +1,21 @@
+{
+  "asDependentOnProductNames": [
+    "mWindowsSDK",
+    "mHTTP",
+    "mDebugOutput",
+    "mMultiThreading",
+    "oConsole"
+  ], 
+  "oProductVersion": "2019-10-18 07:30", 
+  "oRepository": {
+    "sBranch": "master", 
+    "sRepositoryName": "FileSystemBrowser", 
+    "sType": "GitHub", 
+    "sUserName": "SkyLined"
+  }, 
+  "oTrialPeriodDuration": null, 
+  "sLicenseServerURL": null, 
+  "sProductAuthor": "SkyLined", 
+  "sProductName": "FileSystemBrowser", 
+  "sProductURL": "https://github.com/SkyLined/FileSystemBrowser"
+}
