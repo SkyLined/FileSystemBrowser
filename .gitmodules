@@ -10,3 +10,6 @@
 [submodule "modules/oConsole"]
 	path = modules/oConsole
 	url = https://github.com/SkyLined/oConsole/
+[submodule "modules/mMultiThreading"]
+	path = modules/mMultiThreading
+	url = https://github.com/SkyLined/mMultiThreading/
