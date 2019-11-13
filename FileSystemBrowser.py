@@ -214,14 +214,22 @@ try:
       sIndexHTMLData = dxOfflineFileOrData_by_sRelativePath["index.html"].fsRead();
       dxOfflineFileOrData_by_sRelativePath["index.html"] = \
           sIndexHTMLData.replace("dxTreeData.json", "dxTreeData_json");
-      bIllegalFileExtensionsFound = False;
+      asRelativePathsWithIllegalFileExtensions = [];
+      asRelativePathsWithIllegalFileNameCharacters = [];
       for sRelativePath in dxOfflineFileOrData_by_sRelativePath:
+        if "&" in sRelativePath or "#" in sRelativePath:
+          asRelativePathsWithIllegalFileNameCharacters.append(sRelativePath);
         if sRelativePath.lower().split(".")[-1] in ("exe",):
-          if not bIllegalFileExtensionsFound:
-            oConsole.fOutput(ERROR, "  - The following files have extensions that are not allowed:");
-          bIllegalFileExtensionsFound = True;
+          asRelativePathsWithIllegalFileExtensions.append(sRelativePath);
+      if asRelativePathsWithIllegalFileExtensions:
+        oConsole.fOutput(ERROR, "  - The following files have extensions that are not allowed:");
+        for sRelativePath in asRelativePathsWithIllegalFileExtensions:
           oConsole.fOutput(ERROR, "    - ", ERROR_INFO, sRelativePath);
-      if bIllegalFileExtensionsFound:
+      if asRelativePathsWithIllegalFileNameCharacters:
+        oConsole.fOutput(ERROR, "  - The following file names have characters that are not allowed ('#' '&'):");
+        for sRelativePath in asRelativePathsWithIllegalFileNameCharacters:
+          oConsole.fOutput(ERROR, "    - ", ERROR_INFO, sRelativePath);
+      if asRelativePathsWithIllegalFileExtensions or asRelativePathsWithIllegalFileExtensions:
         oConsole.fOutput(ERROR, "    Please remove these files or store them inside a .zip file before trying again.");
         sys.exit(1);
     doExistingOfflineFileOrFolder_by_sRelativePath = {};
