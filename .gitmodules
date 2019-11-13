@@ -4,3 +4,6 @@
 [submodule "modules/mDebugOutput"]
 	path = modules/mDebugOutput
 	url = https://github.com/SkyLined/mDebugOutput/
+[submodule "modules/mWindowsSDK"]
+	path = modules/mWindowsSDK
+	url = https://github.com/SkyLined/mWindowsSDK/
