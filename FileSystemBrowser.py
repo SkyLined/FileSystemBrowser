@@ -36,24 +36,33 @@ def fPrintUsage():
   oConsole.fPrint(INFO, "  --http-proxy=hostname:port");
   oConsole.fPrint("    Use the specified hostname and port as a HTTP proxy to make requests to");
   oConsole.fPrint("    look up favicons for website links.");
+  oConsole.fPrint(INFO, "  --http-timeout=<seconds>");
+  oConsole.fPrint("    Wait for a HTTP response from a server or proxy for at most the given number");
+  oConsole.fPrint("    of seconds before failing the request.");
   oConsole.fPrint("");
   oConsole.fPrint(HILITE, "Notes:");
-  oConsole.fPrint("  You can provide the ", INFO, "--http-direct", NORMAL, " and/or ", INFO, "--http-proxy arguments", NORMAL, " to allow");
+  oConsole.fPrint("  You can provide the ", INFO, "--http-direct", NORMAL, " and/or ", INFO, "--http-proxy", NORMAL, " arguments to allow");
   oConsole.fPrint("  FileSystemBrowser to request any webpages that are linked to in order to");
   oConsole.fPrint("  determine their 'favicon' icon and use that for the link. Note that this can");
   oConsole.fPrint("  slow down the creation of the tree significantly.");
-  oConsole.fPrint("  You can combine the ", INFO, "--http-direct", NORMAL, " and ", INFO, "--http-proxy arguments", NORMAL, " to try both");
+  oConsole.fPrint("  You can combine the ", INFO, "--http-direct", NORMAL, " and ", INFO, "--http-proxy", NORMAL, " arguments to try both");
   oConsole.fPrint("  direct requests and requests through a proxy when on an intranet. You can");
-  oConsole.fPrint("  also specify multiple ", INFO, "--http-proxy arguments", NORMAL, " arguments to have this");
+  oConsole.fPrint("  also specify multiple ", INFO, "--http-proxy", NORMAL, " arguments to have this");
   oConsole.fPrint("  script to try multiple proxies for each webpage untill the webpage can");
   oConsole.fPrint("  successfully be downloaded.");
-  oConsole.fPrint("  The order in which you provide these arguments determines the order in which");
-  oConsole.fPrint("  FileSystemBrowser will try to use them to request the webpage.");
+  oConsole.fPrint("  If you provide the ", INFO, "--http-timeout", NORMAL, " argument, it will affect only");
+  oConsole.fPrint("  connections made by the client based on ", INFO, "--http-direct", NORMAL, " and/or ", INFO, "--http-proxy");
+  oConsole.fPrint("  arguments that come after it. This allows you to set different timeouts for");
+  oConsole.fPrint("  these arguments.");
+  oConsole.fPrint("  The order in which you provide the ", INFO, "--http-direct", NORMAL, " and ", INFO, "--http-proxy", NORMAL, " arguments");
+  oConsole.fPrint("  determines the order in which request for webpages are attempted directly or");
+  oConsole.fPrint("  through proxies.");
 
 aoHTTPClients = [];
 sBaseFolderPath = None;
 sOfflineFolderPath = None;
 bApplySharePointHacks = False;
+nHTTPRequestTimeoutInSeconds = None;
 asArguments = sys.argv[1:];
 uArgumentIndex = 0;
 while uArgumentIndex < len(asArguments):
@@ -82,13 +91,13 @@ while uArgumentIndex < len(asArguments):
       sys.exit(0);
     if sSwitchName == "arguments":
       if not sSwitchValue:
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--arguments", ERROR, "argument:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, "argument:");
         oConsole.fPrint(ERROR, "  You must provide a value for this argument.");
         sys.exit(1);
       # Read additional arguments from file and insert them after the current argument.
       oArgumentsFile = cFileSystemItem(sSwitchValue);
       if not oArgumentsFile.fbIsFile():
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--arguments", ERROR, " argument:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, " argument:");
         oConsole.fPrint(ERROR, "  ", ERROR_INFO, oArgumentsFile.sPath);
         oConsole.fPrint(ERROR, "  File not found.");
         sys.exit(1);
@@ -100,33 +109,33 @@ while uArgumentIndex < len(asArguments):
       ] + asArguments[uArgumentIndex + 1:];
     elif sSwitchName == "offline":
       if sOfflineFolderPath is not None:
-        oConsole.fPrint(ERROR, "- Superflous ", ERROR_INFO, "--offline", ERROR, " arguments:");
+        oConsole.fPrint(ERROR, "- Superflous ", ERROR_INFO, "--", sSwitchName, ERROR, " arguments:");
         oConsole.fPrint(ERROR, "  ", ERROR_INFO, sOfflineFolderPath);
         oConsole.fPrint(ERROR, "  ", ERROR_INFO, sSwitchValue);
         oConsole.fPrint(ERROR, "  You can only provide this argument once.");
         sys.exit(1);
       if not sSwitchValue:
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--offline", ERROR, "argument:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, "argument:");
         oConsole.fPrint(ERROR, "  You must provide a value for this argument.");
         sys.exit(1);
       sOfflineFolderPath = sSwitchValue;
     elif sSwitchName == "apply-sharepoint-hacks":
       if sSwitchValue:
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--apply-sharepoint-hacks", ERROR, " argument value:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, " argument value:");
         oConsole.fPrint(ERROR, "  ", ERROR_INFO, sSwitchValue);
         oConsole.fPrint(ERROR, "  You cannot provide a value for this argument.");
         sys.exit(1);
       bApplySharePointHacks = True;
     elif sSwitchName == "http-direct":
       if sSwitchValue:
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--http-direct", ERROR, " argument value:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, " argument value:");
         oConsole.fPrint(ERROR, "  ", ERROR_INFO, sSwitchValue);
         oConsole.fPrint(ERROR, "  You cannot provide a value for this argument.");
         sys.exit(1);
-      aoHTTPClients.append(mHTTP.cHTTPClient());
+      aoHTTPClients.append(mHTTP.cHTTPClient(nDefaultTransactionTimeoutInSeconds = nHTTPRequestTimeoutInSeconds));
     elif sSwitchName == "http-proxy":
       if not sSwitchValue:
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--http-proxy", ERROR, " argument:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, " argument:");
         oConsole.fPrint(ERROR, "  You must provide a value for this argument.");
         sys.exit(1);
       tsHostnameAndPort = sSwitchValue.split(":") if sSwitchValue else [];
@@ -136,12 +145,27 @@ while uArgumentIndex < len(asArguments):
       except:
         uPort = 0;
       if uPort <= 0:
-        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--http-proxy", ERROR, " argument:");
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, " argument:");
         oConsole.fPrint(ERROR, "  ", ERROR_INFO, sSwitchValue);
         oConsole.fPrint(ERROR, "  You must provide a valid 'hostname:port' value for the http proxy.");
         sys.exit(1);
       oProxyServerURL = mHTTP.cURL("http", sHostname, uPort);
-      aoHTTPClients.append(mHTTP.cHTTPClientUsingProxyServer(oProxyServerURL));
+      aoHTTPClients.append(mHTTP.cHTTPClientUsingProxyServer(oProxyServerURL, nDefaultTransactionTimeoutInSeconds = nHTTPRequestTimeoutInSeconds));
+    elif sSwitchName == "http-timeout":
+      if not sSwitchValue:
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, "argument:");
+        oConsole.fPrint(ERROR, "  You must provide a numeric value for this argument.");
+        sys.exit(1);
+      try:
+        nHTTPRequestTimeoutInSeconds = float(sSwitchValue);
+        if nHTTPRequestTimeoutInSeconds < 0:
+          raise ValueError();
+      except ValueError:
+        oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, "argument:");
+        oConsole.fPrint(ERROR, "  You must provide a numeric value for this argument.");
+        sys.exit(1);
+      if nHTTPRequestTimeoutInSeconds == 0:
+        nHTTPRequestTimeoutInSeconds = None;
     else:
       oConsole.fPrint(ERROR, "- Unknown ", ERROR_INFO, "--", sSwitchName, ERROR, " argument.");
       sys.exit(1);
