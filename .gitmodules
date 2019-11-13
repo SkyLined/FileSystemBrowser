@@ -1,3 +1,6 @@
 [submodule "modules/mHTTP"]
 	path = modules/mHTTP
 	url = https://github.com/SkyLined/mHTTP/
+[submodule "modules/mDebugOutput"]
+	path = modules/mDebugOutput
+	url = https://github.com/SkyLined/mDebugOutput/
