@@ -1,0 +1,3 @@
+[submodule "modules/mHTTP"]
+	path = modules/mHTTP
+	url = https://github.com/SkyLined/mHTTP/
