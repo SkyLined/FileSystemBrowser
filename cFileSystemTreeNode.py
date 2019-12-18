@@ -251,6 +251,11 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             oSelf.sToolTip = "Link file is broken.";
             oIconFile = goBrokenLinkIconFile;
             aoChildFileSystemItems = None;
+          elif oLNKFileTarget.sPath.startswith("\\"):
+            oSelf.fLinkToURL("file:%s" % oLNKFileTarget.sPath.replace("\\", "/"));
+            oSelf.sToolTip = oLNKFileTarget.sPath;
+            oIconFile = goBrokenLinkIconFile;
+            aoChildFileSystemItems = None;
           else:
             sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(oLNKFileTarget, bThrowErrors = False);
             bLinkIsValid = sRelativeTargetPath and oLNKFileTarget.fbExists();
