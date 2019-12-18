@@ -187,7 +187,7 @@ if sOfflineFolderPath is None:
 try:
   oConsole.fStatus("* Reading folder tree for ", INFO, oRootFolderFileSystemItem.sPath, NORMAL, "...");
   oRootFileSystemTreeNode.fRefreshTree(oTreeServer, aoHTTPClients, bThrowErrors = bDebug);
-  oConsole.fPrint("* Folder tree complete for  ", INFO, oRootFolderFileSystemItem.sPath, NORMAL, ".");
+  oConsole.fPrint("* Folder tree complete for ", INFO, oRootFolderFileSystemItem.sPath, NORMAL, ".");
   oTreeServer.fMakeStatic();
   if sOfflineFolderPath is not None:
     oOfflineFolder = cFileSystemItem(sOfflineFolderPath);
