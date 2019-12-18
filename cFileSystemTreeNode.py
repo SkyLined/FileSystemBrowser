@@ -306,7 +306,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             oIconFile = goBrokenLinkIconFile;
           else:
             if len(aoHTTPClients) > 0 and isinstance(o0URLFileTarget, mHTTP.cURL):
-              oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, o0URLFileTarget
+              oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, o0URLFileTarget);
               oSelf.sIconURL = str(oFavIconURL) if oFavIconURL else None;
             oIconFile = gdoLinkIconFile_by_sProtocolHeader.get(o0URLFileTarget.sProtocol, goLinkIconFile);
             oSelf.sName = oSelf.sName[:-4]; # remove ".url";
