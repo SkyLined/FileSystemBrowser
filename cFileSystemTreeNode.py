@@ -1,4 +1,4 @@
-import codecs, os, re;
+import base64, codecs, os, re;
 from cTreeServer import cTreeServer;
 from cFileSystemItem import cFileSystemItem;
 import mHTTP, mWindowsAPI;
@@ -31,6 +31,7 @@ goLinkToSecureWebSiteIconFile = goIconsFolder.foGetChild("link-to-secure-website
 goLinkToEmailIconFile = goIconsFolder.foGetChild("email.png", bMustBeFile = True);
 goLinkToInternalFileIconFile = goIconsFolder.foGetChild("link-to-file.png", bMustBeFile = True);
 goLinkToInternalFolderIconFile = goIconsFolder.foGetChild("link-to-folder.png", bMustBeFile = True);
+goLinkToExternalFolderIconFile = goIconsFolder.foGetChild("folder-link.png", bMustBeFile = True);
 goNotFoundIconFile = goIconsFolder.foGetChild("not-found.png", bMustBeFile = True);
 goPresentationFileIconFile = goIconsFolder.foGetChild("file-presentation.png", bMustBeFile = True);
 goSourceFileIconFile = goIconsFolder.foGetChild("file-source.png", bMustBeFile = True);
@@ -43,17 +44,28 @@ goValidZipFileIconFile = goIconsFolder.foGetChild("file-zip.png", bMustBeFile = 
 goVideoFileIconFile = goIconsFolder.foGetChild("file-video.png", bMustBeFile = True);
 goVisualStudioFileIconFile = goIconsFolder.foGetChild("file-visual-studio.png", bMustBeFile = True);
 
-gsPowershellBinaryFilePath = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-gsPowershellScriptTemplateToExtractTargetFromLinkFile = \
-    "Write-Output ((New-Object -ComObject WScript.Shell).CreateShortcut(%s).TargetPath);";
-def fsGetLinkFileTarget(oLinkFile):
+gsPowershellBinaryFilePath = os.path.join(os.getenv("WinDir"), r"System32\WindowsPowerShell\v1.0\powershell.exe");
+gsPowershellBinaryFilePath = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe";
+gsPowershellScriptTemplateToExtractTargetFromLinkFile = (
+  "Write-Output ("
+    "[System.Convert]::ToBase64String("
+      "[System.Text.Encoding]::UTF8.GetBytes("
+        "("
+          "New-Object -ComObject WScript.Shell"
+        ").CreateShortcut("
+          "[System.Text.Encoding]::UTF8.GetString("
+            "[System.Convert]::FromBase64String("
+              "%s"
+            ")"
+          ")"
+        ").TargetPath"
+      ")"
+    ")"
+  ");"
+);
+def fs0GetLinkFileTarget(oLinkFile):
   # This should work for .LNK and .URL files.
-  sEncodedLinkPath = '"%s"' % "".join(map(lambda sChar: (
-      "``" if sChar == "`" else \
-      '`"' if sChar == '"' else \
-      sChar if 0x20 <= ord(sChar) <= 0x7e \
-      else "`u{%X}" % ord(sChar)
-  ), oLinkFile.sPath));
+  sEncodedLinkPath = '"%s"' % base64.b64encode(unicode(oLinkFile.sPath).encode("utf-8"));
   sPowershellScript = gsPowershellScriptTemplateToExtractTargetFromLinkFile % sEncodedLinkPath;
   oPowerShellProcess = mWindowsAPI.cConsoleProcess.foCreateForBinaryPathAndArguments(
     sBinaryPath = gsPowershellBinaryFilePath,
@@ -67,12 +79,13 @@ def fsGetLinkFileTarget(oLinkFile):
   sStdErr = oPowerShellProcess.oStdErrPipe.fsReadBytes();
   assert sStdErr == "" and oPowerShellProcess.uExitCode == 0, \
       "Powershell terminated with exit code %d.\n  command = %s\n  stdout = %s\n  stderr = %s" % (oPowerShellProcess.uExitCode, repr(sPowershellScript), repr(sStdOut), repr(sStdErr));
-  return sStdOut.strip();
+  sEncodedPath = sStdOut.strip();
+  return base64.b64decode(sEncodedPath).decode("utf-8") if sEncodedPath else None;
 
 def foGetLinkFileTargetFileSystemItem(oLinkFile):
   # This should work for .LNK and .URL files.
-  sTargetPath = fsGetLinkFileTarget(oLinkFile);
-  return cFileSystemItem(sTargetPath) if sTargetPath else None;
+  s0TargetPath = fs0GetLinkFileTarget(oLinkFile);
+  return cFileSystemItem(s0TargetPath) if s0TargetPath else None;
 
 class cMailToURL(object):
   sProtocol = "mailto";
@@ -107,10 +120,10 @@ class cMailToURL(object):
   def __str__(oSelf):
     return "%s:%s" % (oSelf.sProtocol, oSelf.sEMailAddress);
 
-def foGetLinkFileTargetURL(oLinkFile):
-  sTargetURL = fsGetLinkFileTarget(oLinkFile);
-  return (cMailToURL.fo0FromString(sTargetURL) or mHTTP.cURL.foFromString(sTargetURL)) \
-      if sTargetURL else None;
+def fo0GetLinkFileTargetURL(oLinkFile):
+  s0TargetURL = fs0GetLinkFileTarget(oLinkFile);
+  return (cMailToURL.fo0FromString(s0TargetURL) or mHTTP.cURL.foFromString(s0TargetURL)) \
+      if s0TargetURL else None;
 
 gsPowershellScriptTemplateToModifyTargetInLNKFile = \
     "$oShortcut = (New-Object -ComObject WScript.Shell).CreateShortcut(\"%s\");$oShortcut.TargetPath = \"%s\";$oShortcut.Save();Write-Output (\"ok\");";
@@ -273,26 +286,26 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
               oIconFile = goBrokenLinkIconFile;
               aoChildFileSystemItems = None;
             else:
+              oSelf.sName = oSelf.sName[:-4]; # remove ".lnk";
+              oSelf.sToolTip = "Link to %s" % sRelativeTargetPath;
+              oSelf.fLinkToNodeId(os.sep + sRelativeTargetPath);
               if oLNKFileTarget.fbIsFile():
                 oIconFile = goLinkToInternalFileIconFile 
                 aoChildFileSystemItems = None;
               else:
                 oIconFile = goLinkToInternalFolderIconFile;
                 aoChildFileSystemItems = [];
-              oSelf.sName = oSelf.sName[:-4]; # remove ".lnk";
-              oSelf.sToolTip = "Link to %s" % sRelativeTargetPath;
-              oSelf.fLinkToNodeId(os.sep + sRelativeTargetPath);
         elif sExtension.lower() == "url":
-          oURLFileTarget = foGetLinkFileTargetURL(oSelf.oFileSystemItem);
-          if oURLFileTarget is None:
+          o0URLFileTarget = fo0GetLinkFileTargetURL(oSelf.oFileSystemItem);
+          if o0URLFileTarget is None:
             oIconFile = goBrokenLinkIconFile;
           else:
-            if len(aoHTTPClients) > 0 and isinstance(oURLFileTarget, mHTTP.cURL):
-              oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURLFileTarget);
+            if len(aoHTTPClients) > 0 and isinstance(o0URLFileTarget, mHTTP.cURL):
+              oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, o0URLFileTarget
               oSelf.sIconURL = str(oFavIconURL) if oFavIconURL else None;
-            oIconFile = gdoLinkIconFile_by_sProtocolHeader.get(oURLFileTarget.sProtocol, goLinkIconFile);
+            oIconFile = gdoLinkIconFile_by_sProtocolHeader.get(o0URLFileTarget.sProtocol, goLinkIconFile);
             oSelf.sName = oSelf.sName[:-4]; # remove ".url";
-            sLinkURL = str(oURLFileTarget);
+            sLinkURL = str(o0URLFileTarget);
             oSelf.sToolTip = sLinkURL;
             oSelf.fLinkToURL(sLinkURL);
           aoChildFileSystemItems = None;
