@@ -16,3 +16,6 @@
 [submodule "modules/cTreeServer"]
 	path = modules/cTreeServer
 	url = https://github.com/SkyLined/cTreeServer/
+[submodule "modules/cFileSystemItem"]
+	path = modules/cFileSystemItem
+	url = https://github.com/SkyLined/cFileSystemItem/
