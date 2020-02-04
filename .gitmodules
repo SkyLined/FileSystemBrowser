@@ -13,3 +13,6 @@
 [submodule "modules/mMultiThreading"]
 	path = modules/mMultiThreading
 	url = https://github.com/SkyLined/mMultiThreading/
+[submodule "modules/cTreeServer"]
+	path = modules/cTreeServer
+	url = https://github.com/SkyLined/cTreeServer/
