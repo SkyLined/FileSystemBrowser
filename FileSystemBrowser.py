@@ -241,12 +241,12 @@ try:
       oConsole.fStatus("* Updating offline files in ", INFO, oOfflineFolder.sPath, NORMAL, "...");
     else:
       oConsole.fStatus("* Saving offline files in ", INFO, oOfflineFolder.sPath, NORMAL, "...");
-    asExistingAndNewOfflineFileRelativePaths = set(
+    asExistingAndNewOfflineFileRelativePaths = list(set(
       dxOfflineFileOrData_by_sRelativePath.keys()
       + doExistingOfflineFileOrFolder_by_sRelativePath.keys()
-    );
+    ));
     fPrintOrStatus = oConsole.fPrint if bDebug else oConsole.fStatus;
-    for sRelativePath in sorted(list(asExistingAndNewOfflineFileRelativePaths)):
+    for sRelativePath in sorted(asExistingAndNewOfflineFileRelativePaths, key=lambda sString: sString.lower()):
       xOfflineFileOrData = dxOfflineFileOrData_by_sRelativePath.get(sRelativePath);
       sData = xOfflineFileOrData.fsRead(bThrowErrors = bDebug) if isinstance(xOfflineFileOrData, cFileSystemItem) \
           else xOfflineFileOrData;
