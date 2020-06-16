@@ -1,5 +1,7 @@
 {
   "asDependentOnProductNames": [
+    "cFileSystemItem",
+    "cTreeServer",
     "mWindowsSDK",
     "mHTTP",
     "mDebugOutput",
