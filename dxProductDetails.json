@@ -2,10 +2,14 @@
   "asDependentOnProductNames": [
     "cFileSystemItem", 
     "cTreeServer", 
-    "mWindowsSDK", 
-    "mHTTP", 
     "mDebugOutput", 
+    "mHTTP", 
+    "mHTTPConnections",
+    "mHTTPProtocol",
     "mMultiThreading", 
+    "mSSL",
+    "mTCPIPConnections",
+    "mWindowsSDK", 
     "oConsole"
   ], 
   "oProductVersion": "2020-06-16 09:46", 

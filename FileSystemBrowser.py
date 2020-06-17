@@ -1,4 +1,6 @@
 import os, sys;
+from fCheckDependencies import fCheckDependencies;
+fCheckDependencies();
 
 sModuleFolder = os.path.dirname(__file__);
 sBaseFolder = os.path.dirname(sModuleFolder);
