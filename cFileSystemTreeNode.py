@@ -374,7 +374,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
                   oSelf.oFileSystemItem, bThrowErrors = bThrowErrors);
             else:
               sRelativePath = oSelf.oRootFileSystemItem.sName;
-            sRelativeURL = "files/%s" % sRelativePath.replace(os.sep, "/");
+            sRelativeURL = "/files/%s" % sRelativePath.replace(os.sep, "/");
             oTreeServer.doFile_by_sRelativeURL[sRelativeURL] = oSelf.oFileSystemItem;
             oSelf.sType = "iframe";
             oSelf.xData = sRelativeURL;
