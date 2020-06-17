@@ -2,7 +2,6 @@
   "asDependentOnProductNames": [
     "cFileSystemItem", 
     "cTreeServer", 
-    "mDebugOutput", 
     "mHTTP", 
     "mHTTPConnections",
     "mHTTPProtocol",
@@ -11,7 +10,10 @@
     "mTCPIPConnections",
     "mWindowsSDK", 
     "oConsole"
-  ], 
+  ],
+  "asOptionalProductNames": [
+    "mDebugOutput"
+  ],
   "oProductVersion": "2020-06-16 09:46", 
   "oRepository": {
     "sBranch": "master", 
