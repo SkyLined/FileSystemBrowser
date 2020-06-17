@@ -145,7 +145,7 @@ def fbSetLNKFileTarget(oLNKFile, oNewTarget):
   return "ok" == sStdOut.strip();
 
 
-gdoIconFile_by_sMainType = {
+gdoIconFile_by_sMainMediaType = {
   "application": goBinaryFileIconFile,
   "video": goVideoFileIconFile,
   "audio": goAudioFileIconFile,
@@ -326,35 +326,48 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
         else:
           # icon depends on the extension or media type.
           sMediaType = mHTTP.fsGetMediaTypeForExtension(sExtension) if sExtension else None;
-          sMainType = sMediaType[:sMediaType.find("/")] if sMediaType else None;
+          sMainMediaType = sMediaType[:sMediaType.find("/")] if sMediaType else None;
           oIconFile = (
             gdoIconFile_by_sFileExtension.get(sExtension.lower())
-            or gdoIconFile_by_sMainType.get(sMainType)
+            or gdoIconFile_by_sMainMediaType.get(sMainMediaType)
             or goFileIconFile
           );
           sNodeType = gdsNodeType_by_sFileExtension.get(sExtension.lower());
           if sNodeType:
+            # This is not just a random file, it has a special meaning.
+            # Read the file data.
             sFileData = oSelf.oFileSystemItem.fsRead(bThrowErrors = bThrowErrors);
-            if sFileData is not None:
-              if sMainType == "text":
-                sEncoding = (
-                  "utf-8-sig" if sFileData.startswith(codecs.BOM_UTF8) else \
-                  "utf-16" if sFileData.startswith(codecs.BOM_UTF16_LE) or sFileData.startswith(codecs.BOM_UTF16_BE) else \
-                  "utf-32" if sFileData.startswith(codecs.BOM_UTF32_LE) or sFileData.startswith(codecs.BOM_UTF32_BE) else \
-                  "utf-8"
-                );
+            if sFileData is None:
+              sNodeType = None; # Cannot read file data.
+            elif "\0" in sFileData:
+              # This file does not appear to have text content; treat it as a regular file.
+              sNodeType = None;
+            else:
+              # This is supposed to be a text file: see if we can decode this:
+              sEncoding = (
+                "utf-8-sig" if sFileData.startswith(codecs.BOM_UTF8) else \
+                "utf-16" if sFileData.startswith(codecs.BOM_UTF16_LE) or sFileData.startswith(codecs.BOM_UTF16_BE) else \
+                "utf-32" if sFileData.startswith(codecs.BOM_UTF32_LE) or sFileData.startswith(codecs.BOM_UTF32_BE) else \
+                "utf-8"
+              );
+              try:
+                sFileData = sFileData.decode(sEncoding);
+              except UnicodeError:
                 try:
-                  sFileData = sFileData.decode(sEncoding);
-                except UnicodeDecodeError:
                   sFileData = sFileData.decode("cp1252");
-                try:
-                  sFileData.encode("utf-8");
-                except Exception as oException:
-                  oConsole.fPrint(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
-                  oConsole.fPrint(ERROR_INFO, "  ", str(oException));
-                  raise;
-              oSelf.sType = sNodeType;
-              oSelf.xData = sFileData;
+                except UnicodeDecodeError:
+                  # This file does not appear to have text content that we can decode; treat it as a regular file.
+                  sNodeType = None;
+          if sNodeType:
+            # Make sure the data can be utf-8 encoded
+            try:
+              sFileData.encode("utf-8");
+            except UnicodeError as oException:
+              oConsole.fPrint(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
+              oConsole.fPrint(ERROR_INFO, "  ", str(oException));
+              raise;
+            oSelf.sType = sNodeType;
+            oSelf.xData = sFileData;
           else:
             if oSelf.oRootFileSystemItem != oSelf.oFileSystemItem:
               sRelativePath = oSelf.oRootFileSystemItem.fsGetRelativePathTo( \
