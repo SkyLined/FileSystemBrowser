@@ -24,6 +24,7 @@ goFolderEmptyIconFile = goIconsFolder.foGetChild("folder-empty.png", bMustBeFile
 goFolderEmptyWithIndexIconFile = goIconsFolder.foGetChild("folder-empty-with-index.png", bMustBeFile = True);
 goFolderWithContentIconFile = goIconsFolder.foGetChild("folder-with-content.png", bMustBeFile = True);
 goFolderWithContentAndIndexIconFile = goIconsFolder.foGetChild("folder-with-content-and-index.png", bMustBeFile = True);
+goGitFileIconFile = goIconsFolder.foGetChild("file-git.png", bMustBeFile = True);
 goImageFileIconFile = goIconsFolder.foGetChild("file-image.png", bMustBeFile = True);
 goLinkIconFile = goIconsFolder.foGetChild("link.png", bMustBeFile = True);
 goLinkToWebSiteIconFile = goIconsFolder.foGetChild("link-to-website.png", bMustBeFile = True);
@@ -159,13 +160,17 @@ gdoIconFile_by_sFileExtension = {
   "cxx":  goSourceFileIconFile,
   "doc":  goDocumentFileIconFile,
   "docx": goDocumentFileIconFile,
-  "java": goSourceFileIconFile,
-  "js":   goSourceFileIconFile,
-  "json": goSourceFileIconFile,
+  "git":  goGitFileIconFile,
+  "gitattributes": goGitFileIconFile,
+  "gitignore": goGitFileIconFile,
+  "gitmodules": goGitFileIconFile,
   "h":    goSourceFileIconFile,
   "htm":  goDocumentFileIconFile,
   "html": goDocumentFileIconFile,
   "hxx":  goSourceFileIconFile,
+  "java": goSourceFileIconFile,
+  "js":   goSourceFileIconFile,
+  "json": goSourceFileIconFile,
   "md":   goDocumentFileIconFile,
   "pdf":  goDocumentFileIconFile,
   "ppt":  goPresentationFileIconFile,
@@ -186,13 +191,17 @@ gdsNodeType_by_sFileExtension = {
   "cpp":  "text",
   "css":  "text",
   "cxx":  "text",
-  "java": "text",
-  "js":   "text",
-  "json": "text",
+  "git":  "text",
+  "gitattributes": "text",
+  "gitignore": "text",
+  "gitmodules": "text",
   "h":    "text",
   "htm":  "html",
   "html": "html",
   "hxx":  "text",
+  "java": "text",
+  "js":   "text",
+  "json": "text",
   "md":   "markdown",
   "ps1":  "text",
   "py":   "text",
