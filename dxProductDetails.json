@@ -3,24 +3,26 @@
     "cFileSystemItem", 
     "cTreeServer", 
     "mHTTP", 
-    "mHTTPConnections",
-    "mHTTPProtocol",
+    "mHTTPConnections", 
+    "mHTTPProtocol", 
     "mMultiThreading", 
-    "mSSL",
-    "mTCPIPConnections",
+    "mSSL", 
+    "mTCPIPConnections", 
     "mWindowsSDK", 
     "oConsole"
-  ],
+  ], 
   "asOptionalProductNames": [
     "mDebugOutput"
-  ],
-  "oProductVersion": "2020-06-16 09:46", 
+  ], 
+  "oProductVersion": "2020-06-17 16:32", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "FileSystemBrowser", 
     "sType": "GitHub", 
     "sUserName": "SkyLined"
   }, 
+  "oTrialPeriodDuration": null, 
+  "sLicenseServerURL": null, 
   "sProductAuthor": "SkyLined", 
   "sProductName": "FileSystemBrowser", 
   "sProductURL": "https://github.com/SkyLined/FileSystemBrowser"
