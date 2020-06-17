@@ -1,7 +1,16 @@
 from fCheckDependencies import fCheckDependencies;
 fCheckDependencies();
 
-from mDebugOutput import fEnableAllDebugOutput, fEnableDebugOutputForClass, fEnableDebugOutputForModule, fTerminateWithException;
+try: # mDebugOutput use is Optional
+  from mDebugOutput import *;
+except: # Do nothing if not available.
+  ShowDebugOutput = lambda fxFunction: fxFunction;
+  fShowDebugOutput = lambda sMessage: None;
+  fEnableDebugOutputForModule = lambda mModule: None;
+  fEnableDebugOutputForClass = lambda cClass: None;
+  fEnableAllDebugOutput = lambda: None;
+  cCallStack = fTerminateWithException = fTerminateWithConsoleOutput = None;
+
 try:
   import os, sys;
 
@@ -260,4 +269,6 @@ try:
     raise;
   oConsole.fPrint("* Done.");
 except Exception as oException:
-  fTerminateWithException(oException);
+  if fTerminateWithException:
+    fTerminateWithException(oException);
+  raise;

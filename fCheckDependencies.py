@@ -12,7 +12,7 @@ class cProductDetails(object):
       finally:
         oProductDetailsFile.close();
       oSelf.sProductName = dxProductDetails["sProductName"];
-      oSelf.asDependentOnProductNames = dxProductDetails["asDependentOnProductNames"];
+      oSelf.asDependentOnProductNames = dxProductDetails.get("asDependentOnProductNames", []);
     except:
       print "*" * 80;
       print "The file %s does not appear to contain valid product details!" % sProductDetailsFilePath;
@@ -87,4 +87,6 @@ def fCheckDependencies():
   asOriginalSysPath = sys.path[:];
   sys.path = [sMainProductFolderPath, sParentFolderPath, sModulesFolderPath] + sys.path;
   cDependencyChecker(sMainProductFolderPath).fCheck();
+  # Restore the original module search path
+  sys.path = asOriginalSysPath;
 
