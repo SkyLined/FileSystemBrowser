@@ -18,8 +18,11 @@ try:
   from cTreeServer import cTreeServer;
   from cFileSystemItem import cFileSystemItem;
   from oConsole import oConsole;
-  from mColors import *;
   import mHTTP;
+  
+  from mColors import *;
+  from fPrintUsageInformation import fPrintUsageInformation;
+  from fPrintVersionInformation import fPrintVersionInformation;
   
   bDebug = False;
   aoHTTPClients = [];
@@ -31,11 +34,18 @@ try:
   uArgumentIndex = 0;
   while uArgumentIndex < len(asArguments):
     sArgument = asArguments[uArgumentIndex];
+    if sArgument in ["/h", "/?", "-h", "-?", "/help"]:
+      fPrintUsageInformation();
+      sys.exit(0);
+    elif sArgument in ["-v", "--version", "/version"]:
+      fPrintVersionInformation(
+        bCheckForUpdates = True,
+        bCheckAndShowLicenses = True,
+        bShowInstallationFolders = True,
+      );
+      sys.exit(0);
     sSwitchName = sArgument[2:].lower().split("=")[0] if sArgument.startswith("--") else None;
     if sSwitchName is None:
-      if sArgument in ["/h", "/?", "-h", "-?"]:
-        fPrintHelp();
-        sys.exit(0);
       if sArgument[0] == '"' and sArgument[-1] == '"':
         sArgument = sArgument[1:-1]; # remove wrapping quotes from argument
       if sBaseFolderPath is not None:
@@ -54,7 +64,7 @@ try:
         bDebug = True;
         fEnableAllDebugOutput();
       elif sSwitchName == "help":
-        fPrintHelp();
+        fPrintUsageInformation();
         sys.exit(0);
       elif sSwitchName == "arguments":
         if not sSwitchValue:
