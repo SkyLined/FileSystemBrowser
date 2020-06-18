@@ -6,8 +6,10 @@
     "mHTTPConnections", 
     "mHTTPProtocol", 
     "mMultiThreading", 
+    "mProductDetails", 
     "mSSL", 
     "mTCPIPConnections", 
+    "mWindowsAPI", 
     "mWindowsSDK", 
     "oConsole"
   ], 
