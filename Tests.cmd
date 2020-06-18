@@ -20,7 +20,7 @@ ECHO   * Test offline with sharepoint hacks...
 CALL "%~dp0FileSystemBrowser.cmd" --offline="%TEST_FOLDER_PATH%" --apply-sharepoint-hacks
 IF ERRORLEVEL 1 GOTO :ERROR
 
-ECHO "%TEST_FOLDER_PATH%" /S /Q
+RD "%TEST_FOLDER_PATH%" /S /Q
 
 ECHO + Done.
 EXIT /B 0
