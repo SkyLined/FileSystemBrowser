@@ -31,3 +31,15 @@
 [submodule "modules\\mHTTPProtocol"]
 	path = modules\\mHTTPProtocol
 	url = https://github.com/SkyLined/mHTTPProtocol
+[submodule "modules\\mWindowsAPI"]
+	path = modules\\mWindowsAPI
+	url = https://github.com/SkyLined/mWindowsAPI
+[submodule "modules\\mDateTime"]
+	path = modules\\mDateTime
+	url = https://github.com/SkyLined/mDateTime
+[submodule "modules\\mRegistry"]
+	path = modules\\mRegistry
+	url = https://github.com/SkyLined/mRegistry
+[submodule "modules\\mProductDetails"]
+	path = modules\\mProductDetails
+	url = https://github.com/SkyLined/mProductDetails
