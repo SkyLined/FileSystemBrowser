@@ -2,11 +2,13 @@
   "asDependentOnProductNames": [
     "cFileSystemItem", 
     "cTreeServer", 
+    "mDateTime", 
     "mHTTP", 
     "mHTTPConnections", 
     "mHTTPProtocol", 
     "mMultiThreading", 
     "mProductDetails", 
+    "mRegistry", 
     "mSSL", 
     "mTCPIPConnections", 
     "mWindowsAPI", 
