@@ -27,7 +27,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     ));
     try:
       oResponse = oHTTPClient.foGetResponseForURL(oURL);
-    except mHTTP.cException as oException:
+    except mHTTP.mHTTPExceptions.cException as oException:
       if gbDebug:
         oConsole.fPrint(*(
           [WARNING, "Requesting ", WARNING_INFO, str(oURL), WARNING] +
@@ -68,7 +68,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     ));
     try:
       oResponse = oHTTPClient.foGetResponseForURL(oFavIconURL);
-    except mHTTP.cException as oException:
+    except mHTTP.mHTTPExceptions.cException as oException:
       oConsole.fPrint(*(
         [WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING] +
         ([" through ", INFO, str(oProxyServerURL), NORMAL, " "] if oProxyServerURL else []) +
