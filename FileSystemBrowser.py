@@ -29,7 +29,7 @@ try:
   sBaseFolderPath = None;
   sOfflineFolderPath = None;
   bApplySharePointHacks = False;
-  nHTTPRequestTimeoutInSeconds = None;
+  nzHTTPRequestTimeoutInSeconds = None;
   asArguments = sys.argv[1:];
   uArgumentIndex = 0;
   while uArgumentIndex < len(asArguments):
@@ -109,7 +109,7 @@ try:
           oConsole.fPrint(ERROR, "  ", ERROR_INFO, sSwitchValue);
           oConsole.fPrint(ERROR, "  You cannot provide a value for this argument.");
           sys.exit(1);
-        aoHTTPClients.append(mHTTP.cHTTPClient(nDefaultTransactionTimeoutInSeconds = nHTTPRequestTimeoutInSeconds));
+        aoHTTPClients.append(mHTTP.cHTTPClient(nzTransactionTimeoutInSeconds = nzHTTPRequestTimeoutInSeconds));
       elif sSwitchName == "http-proxy":
         if not sSwitchValue:
           oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, " argument:");
@@ -127,22 +127,22 @@ try:
           oConsole.fPrint(ERROR, "  You must provide a valid 'hostname:port' value for the http proxy.");
           sys.exit(1);
         oProxyServerURL = mHTTP.cURL("http", sHostname, uPort);
-        aoHTTPClients.append(mHTTP.cHTTPClientUsingProxyServer(oProxyServerURL, nDefaultTransactionTimeoutInSeconds = nHTTPRequestTimeoutInSeconds));
+        aoHTTPClients.append(mHTTP.cHTTPClientUsingProxyServer(oProxyServerURL, nzTransactionTimeoutInSeconds = nzHTTPRequestTimeoutInSeconds));
       elif sSwitchName == "http-timeout":
         if not sSwitchValue:
           oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, "argument:");
           oConsole.fPrint(ERROR, "  You must provide a numeric value for this argument.");
           sys.exit(1);
         try:
-          nHTTPRequestTimeoutInSeconds = float(sSwitchValue);
-          if nHTTPRequestTimeoutInSeconds < 0:
+          nzHTTPRequestTimeoutInSeconds = float(sSwitchValue);
+          if nzHTTPRequestTimeoutInSeconds < 0:
             raise ValueError();
         except ValueError:
           oConsole.fPrint(ERROR, "- Invalid ", ERROR_INFO, "--", sSwitchName, ERROR, "argument:");
           oConsole.fPrint(ERROR, "  You must provide a numeric value for this argument.");
           sys.exit(1);
-        if nHTTPRequestTimeoutInSeconds == 0:
-          nHTTPRequestTimeoutInSeconds = None;
+        if nzHTTPRequestTimeoutInSeconds == 0:
+          nzHTTPRequestTimeoutInSeconds = None;
       else:
         oConsole.fPrint(ERROR, "- Unknown ", ERROR_INFO, "--", sSwitchName, ERROR, " argument.");
         sys.exit(1);
