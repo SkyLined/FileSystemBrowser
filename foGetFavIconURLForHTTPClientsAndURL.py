@@ -1,5 +1,5 @@
 import re;
-from mHTTP.mExceptions import cHTTPException, cTCPIPException, cSSLException;
+from mHTTP.mExceptions import cHTTPException, cTCPIPException;
 from oConsole import oConsole;
 from mColors import *;
 
@@ -27,7 +27,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     ));
     try:
       oResponse = oHTTPClient.foGetResponseForURL(oURL);
-    except (cHTTPException, cTCPIPException, cSSLException) as oException:
+    except (cHTTPException, cTCPIPException) as oException:
       if gbDebug:
         oConsole.fPrint(*(
           [WARNING, "Requesting ", WARNING_INFO, str(oURL), WARNING] +
@@ -68,7 +68,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     ));
     try:
       oResponse = oHTTPClient.foGetResponseForURL(oFavIconURL);
-    except (cHTTPException, cTCPIPException, cSSLException) as oException:
+    except (cHTTPException, cTCPIPException) as oException:
       oConsole.fPrint(*(
         [WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING] +
         ([" through ", INFO, str(oProxyServerURL), NORMAL, " "] if oProxyServerURL else []) +
