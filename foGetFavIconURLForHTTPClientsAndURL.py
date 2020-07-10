@@ -26,7 +26,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
       [" to look for favicon..."]
     ));
     try:
-      oResponse = oHTTPClient.foGetResponseForURL(oURL);
+      oResponse = oHTTPClient.fozGetResponseForURL(oURL);
     except (cHTTPException, cTCPIPException) as oException:
       if gbDebug:
         oConsole.fPrint(*(
@@ -35,15 +35,8 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
           [" failed: ", WARNING_INFO, str(oException), WARNING, "!"]
         ));
       continue; # This HTTP client cannot retreive the page; try the next client.
-    if oResponse is None:
-      assert oProxyServerURL is not None, \
-          "A HTTPClient that is not using a proxy server (%s) should not return None from a call to foGetResponseForURL!" % oHTTPClient;
-      if gbDebug:
-        oConsole.fPrint(
-          WARNING, "Requesting ", WARNING_INFO, str(oURL), WARNING, " through ",
-          WARNING_INFO, str(oProxyServerURL), WARNING, " failed!"
-        );
-      continue; # This HTTP client using a proxy server cannot retreive the page; try the next client.
+    assert oResponse is not None, \
+        "HTTP Response should not be None!"; # This can only happen if the client is stopping and we control the client and should not have stopped it.
     # See if there is a "/favicon.ico" on the server.
     oFavIconLinkElementMatch = (
       grFavIconLinkElement.search(oResponse.sData) if oResponse.uStatusCode == 200 and oResponse.sMediaType == "text/html" \
@@ -67,7 +60,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
       [" to check favicon..."]
     ));
     try:
-      oResponse = oHTTPClient.foGetResponseForURL(oFavIconURL);
+      oResponse = oHTTPClient.fozGetResponseForURL(oFavIconURL);
     except (cHTTPException, cTCPIPException) as oException:
       oConsole.fPrint(*(
         [WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING] +
@@ -75,14 +68,9 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
         [": ", WARNING_INFO, str(oException), WARNING, "!"]
       ));
       return None;
-    if oResponse is None:
-      assert oProxyServerURL is not None, \
-          "A HTTPClient that is not using a proxy server (%s) should not return None from a call to foGetResponseForURL!" % oHTTPClient;
-      oConsole.fPrint(
-        WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, " through ",
-        WARNING_INFO, str(oProxyServerURL), WARNING, "!"
-      );
-    elif oResponse.uStatusCode != 200:
+    assert oResponse is not None, \
+        "HTTP Response should not be None!"; # This can only happen if the client is stopping and we control the client and should not have stopped it.
+    if oResponse.uStatusCode != 200:
       oConsole.fPrint(
         WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, ": the server responded with ",
         WARNING_INFO, "HTTP ", str(oResponse.uStatusCode), " ", oResponse.sReasonPhrase, WARNING, "!"
