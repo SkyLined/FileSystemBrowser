@@ -39,7 +39,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
         "HTTP Response should not be None!"; # This can only happen if the client is stopping and we control the client and should not have stopped it.
     # See if there is a "/favicon.ico" on the server.
     oFavIconLinkElementMatch = (
-      grFavIconLinkElement.search(oResponse.szData or "") if oResponse.uStatusCode == 200 and oResponse.sMediaType == "text/html" \
+      grFavIconLinkElement.search(oResponse.szData or "") if oResponse.uStatusCode == 200 and oResponse.szMediaType == "text/html" \
       else None
     );
     oFavIconURL = oURL.foFromRelativeString("/favicon.ico"); # The default value unless the webpage specifies a different URL
