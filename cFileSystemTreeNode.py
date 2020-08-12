@@ -227,161 +227,161 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
     oSelf.oRootFileSystemItem = oRootFileSystemItem or oFileSystemItem;
     oSelf.sId = os.sep + (oRootFileSystemItem.fsGetRelativePathTo(oFileSystemItem) if oRootFileSystemItem else "");
   
-  def fRefreshTree(oSelf, oTreeServer, aoHTTPClients, bThrowErrors = False):
+  def fRefreshTree(oSelf, oTreeServer, aoHTTPClients, bThrowErrors = False, fProgressCallback = None):
     oSelf.fRemoveChildren();
     # If this item is stored in a zip file, we'll open the zip file now and
     # keep it open until we are done to cache its content.
+    fProgressCallback(oSelf);
     if oSelf.oFileSystemItem.fbIsFolder(bThrowErrors = bThrowErrors):
       aoChildFileSystemItems = oSelf.oFileSystemItem.faoGetChildren(bThrowErrors = bThrowErrors) or [];
       oIconFile = goFolderEmptyIconFile if len(aoChildFileSystemItems) == 0 else goFolderWithContentIconFile;
       oSelf.oIconFile = goUnknownFolderIconFile;
-    else:
-      if oSelf.oFileSystemItem.fbIsFile(bThrowErrors = bThrowErrors):
-        sExtension = oSelf.oFileSystemItem.sExtension;
-        oSelf.oIconFile = goUnknownFileIconFile;
-        if not sExtension:
-          # No extension
-          oIconFile = goFileIconFile;
+    elif oSelf.oFileSystemItem.fbIsFile(bThrowErrors = bThrowErrors):
+      sExtension = oSelf.oFileSystemItem.sExtension;
+      oSelf.oIconFile = goUnknownFileIconFile;
+      if not sExtension:
+        # No extension
+        oIconFile = goFileIconFile;
+        aoChildFileSystemItems = None;
+      elif sExtension.lower() == "zip":
+        if oSelf.oFileSystemItem.fbIsValidZipFile(bThrowErrors = bThrowErrors):
+          # Let's keep this zip file open while we are done.
+          oIconFile = goValidZipFileIconFile;
+          oSelf.oIconFile = goUnknownFolderIconFile;
+          aoChildFileSystemItems = oSelf.oFileSystemItem.faoGetChildren(bThrowErrors = bThrowErrors) or [];
+        else:
+          # .zip extension but not a valid zip file (or it would have been handles in the code above).
+          oIconFile = goBadZipFileIconFile;
           aoChildFileSystemItems = None;
-        elif sExtension.lower() == "zip":
-          if oSelf.oFileSystemItem.fbIsValidZipFile(bThrowErrors = bThrowErrors):
-            # Let's keep this zip file open while we are done.
-            oIconFile = goValidZipFileIconFile;
-            oSelf.oIconFile = goUnknownFolderIconFile;
-            aoChildFileSystemItems = oSelf.oFileSystemItem.faoGetChildren(bThrowErrors = bThrowErrors) or [];
-          else:
-            # .zip extension but not a valid zip file (or it would have been handles in the code above).
-            oIconFile = goBadZipFileIconFile;
-            aoChildFileSystemItems = None;
-        elif sExtension.lower() == "lnk":
-          oLNKFileTarget = foGetLinkFileTargetFileSystemItem(oSelf.oFileSystemItem);
-          if oLNKFileTarget is None:
-            oConsole.fPrint(ERROR, "- Link file: ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, " is broken!");
-            oSelf.sToolTip = "Link file is broken.";
-            oIconFile = goBrokenLinkIconFile;
-            aoChildFileSystemItems = None;
-          elif oLNKFileTarget.sPath.startswith("\\"):
-            oSelf.fLinkToURL("file:%s" % oLNKFileTarget.sPath.replace("\\", "/"));
-            oSelf.sToolTip = oLNKFileTarget.sPath;
-            oIconFile = goBrokenLinkIconFile;
-            aoChildFileSystemItems = None;
-          else:
-            sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(oLNKFileTarget, bThrowErrors = False);
-            bLinkIsValid = sRelativeTargetPath and oLNKFileTarget.fbExists();
-            if not bLinkIsValid:
-              oConsole.fPrint(WARNING, "- Link file ", WARNING_INFO, oSelf.oFileSystemItem.sPath, WARNING, " links to ",
-                "a file or folder outside of the visible tree" if sRelativeTargetPath is None
-                else "a missing file or folder",
-                " (", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ")!");
-              oConsole.fStatus("* Attempting to fix link ...");
-              # The target could have been moved, so try to figure out what it should be.
-              sPotentialRelativeTargetPath = oLNKFileTarget.sName;
-              oPotentialTargetOriginalParent = oLNKFileTarget.oParent;
-              while oPotentialTargetOriginalParent:
-                oPotentialTarget = oSelf.oRootFileSystemItem.foGetDescendant(sPotentialRelativeTargetPath, bParseZipFiles = False);
-                if oPotentialTarget.fbExists():
-                  sRelativeTargetPath = sPotentialRelativeTargetPath;
-                  oLNKFileTarget = oPotentialTarget;
-                  bLinkIsValid = True;
-                  if not fbSetLNKFileTarget(oSelf.oFileSystemItem, oLNKFileTarget):
-                    oConsole.fPrint(ERROR, "  Cannot redirect the link to ", ERROR_INFO, oLNKFileTarget.sPath, ERROR, ".");
-                  else:
-                    oConsole.fPrint(WARNING, "  The link has been redirected to ", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ".");
-                  break;
-                sPotentialRelativeTargetPath = oPotentialTargetOriginalParent.sName + os.sep + sPotentialRelativeTargetPath;
-                oPotentialTargetOriginalParent = oPotentialTargetOriginalParent.oParent;
-              else:
-                oConsole.fPrint(ERROR, "  The link cannot be fixed!");
-            if not bLinkIsValid:
-              oSelf.sToolTip = (
-                "Link target is outside of visible tree." if sRelativeTargetPath is None
-                else "Link target does not exist."
-              );
-              oIconFile = goBrokenLinkIconFile;
-              aoChildFileSystemItems = None;
-            else:
-              oSelf.sName = oSelf.sName[:-4]; # remove ".lnk";
-              oSelf.sToolTip = "Link to %s" % sRelativeTargetPath;
-              oSelf.fLinkToNodeId(os.sep + sRelativeTargetPath);
-              if oLNKFileTarget.fbIsFile():
-                oIconFile = goLinkToInternalFileIconFile 
-                aoChildFileSystemItems = None;
-              else:
-                oIconFile = goLinkToInternalFolderIconFile;
-                aoChildFileSystemItems = [];
-        elif sExtension.lower() == "url":
-          o0URLFileTarget = fo0GetLinkFileTargetURL(oSelf.oFileSystemItem);
-          if o0URLFileTarget is None:
-            oIconFile = goBrokenLinkIconFile;
-          else:
-            if len(aoHTTPClients) > 0 and isinstance(o0URLFileTarget, mHTTP.cURL):
-              oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, o0URLFileTarget);
-              oSelf.sIconURL = str(oFavIconURL) if oFavIconURL else None;
-            oIconFile = gdoLinkIconFile_by_sProtocolHeader.get(o0URLFileTarget.sProtocol, goLinkIconFile);
-            oSelf.sName = oSelf.sName[:-4]; # remove ".url";
-            sLinkURL = str(o0URLFileTarget);
-            oSelf.sToolTip = sLinkURL;
-            oSelf.fLinkToURL(sLinkURL);
+      elif sExtension.lower() == "lnk":
+        oLNKFileTarget = foGetLinkFileTargetFileSystemItem(oSelf.oFileSystemItem);
+        if oLNKFileTarget is None:
+          oConsole.fPrint(ERROR, "- Link file: ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, " is broken!");
+          oSelf.sToolTip = "Link file is broken.";
+          oIconFile = goBrokenLinkIconFile;
+          aoChildFileSystemItems = None;
+        elif oLNKFileTarget.sPath.startswith("\\"):
+          oSelf.fLinkToURL("file:%s" % oLNKFileTarget.sPath.replace("\\", "/"));
+          oSelf.sToolTip = oLNKFileTarget.sPath;
+          oIconFile = goBrokenLinkIconFile;
           aoChildFileSystemItems = None;
         else:
-          # icon depends on the extension or media type.
-          sMediaType = mHTTP.fsGetMediaTypeForExtension(sExtension) if sExtension else None;
-          sMainMediaType = sMediaType[:sMediaType.find("/")] if sMediaType else None;
-          oIconFile = (
-            gdoIconFile_by_sFileExtension.get(sExtension.lower())
-            or gdoIconFile_by_sMainMediaType.get(sMainMediaType)
-            or goFileIconFile
-          );
-          sNodeType = gdsNodeType_by_sFileExtension.get(sExtension.lower());
-          if sNodeType:
-            # This is not just a random file, it has a special meaning.
-            # Read the file data.
-            sFileData = oSelf.oFileSystemItem.fsRead(bThrowErrors = bThrowErrors);
-            if sFileData is None:
-              sNodeType = None; # Cannot read file data.
-            elif "\0" in sFileData:
-              # This file does not appear to have text content; treat it as a regular file.
-              sNodeType = None;
+          sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(oLNKFileTarget, bThrowErrors = False);
+          bLinkIsValid = sRelativeTargetPath and oLNKFileTarget.fbExists();
+          if not bLinkIsValid:
+            oConsole.fPrint(WARNING, "- Link file ", WARNING_INFO, oSelf.oFileSystemItem.sPath, WARNING, " links to ",
+              "a file or folder outside of the visible tree" if sRelativeTargetPath is None
+              else "a missing file or folder",
+              " (", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ")!");
+            oConsole.fStatus("* Attempting to fix link ...");
+            # The target could have been moved, so try to figure out what it should be.
+            sPotentialRelativeTargetPath = oLNKFileTarget.sName;
+            oPotentialTargetOriginalParent = oLNKFileTarget.oParent;
+            while oPotentialTargetOriginalParent:
+              oPotentialTarget = oSelf.oRootFileSystemItem.foGetDescendant(sPotentialRelativeTargetPath, bParseZipFiles = False);
+              if oPotentialTarget.fbExists():
+                sRelativeTargetPath = sPotentialRelativeTargetPath;
+                oLNKFileTarget = oPotentialTarget;
+                bLinkIsValid = True;
+                if not fbSetLNKFileTarget(oSelf.oFileSystemItem, oLNKFileTarget):
+                  oConsole.fPrint(ERROR, "  Cannot redirect the link to ", ERROR_INFO, oLNKFileTarget.sPath, ERROR, ".");
+                else:
+                  oConsole.fPrint(WARNING, "  The link has been redirected to ", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ".");
+                break;
+              sPotentialRelativeTargetPath = oPotentialTargetOriginalParent.sName + os.sep + sPotentialRelativeTargetPath;
+              oPotentialTargetOriginalParent = oPotentialTargetOriginalParent.oParent;
             else:
-              # This is supposed to be a text file: see if we can decode this:
-              sEncoding = (
-                "utf-8-sig" if sFileData.startswith(codecs.BOM_UTF8) else \
-                "utf-16" if sFileData.startswith(codecs.BOM_UTF16_LE) or sFileData.startswith(codecs.BOM_UTF16_BE) else \
-                "utf-32" if sFileData.startswith(codecs.BOM_UTF32_LE) or sFileData.startswith(codecs.BOM_UTF32_BE) else \
-                "utf-8"
-              );
-              try:
-                sFileData = sFileData.decode(sEncoding);
-              except UnicodeError:
-                try:
-                  sFileData = sFileData.decode("cp1252");
-                except UnicodeDecodeError:
-                  # This file does not appear to have text content that we can decode; treat it as a regular file.
-                  sNodeType = None;
-          if sNodeType:
-            # Make sure the data can be utf-8 encoded
-            try:
-              sFileData.encode("utf-8");
-            except UnicodeError as oException:
-              oConsole.fPrint(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
-              oConsole.fPrint(ERROR_INFO, "  ", str(oException));
-              raise;
-            oSelf.sType = sNodeType;
-            oSelf.xData = sFileData;
+              oConsole.fPrint(ERROR, "  The link cannot be fixed!");
+          if not bLinkIsValid:
+            oSelf.sToolTip = (
+              "Link target is outside of visible tree." if sRelativeTargetPath is None
+              else "Link target does not exist."
+            );
+            oIconFile = goBrokenLinkIconFile;
+            aoChildFileSystemItems = None;
           else:
-            if oSelf.oRootFileSystemItem != oSelf.oFileSystemItem:
-              sRelativePath = oSelf.oRootFileSystemItem.fsGetRelativePathTo( \
-                  oSelf.oFileSystemItem, bThrowErrors = bThrowErrors);
+            oSelf.sName = oSelf.sName[:-4]; # remove ".lnk";
+            oSelf.sToolTip = "Link to %s" % sRelativeTargetPath;
+            oSelf.fLinkToNodeId(os.sep + sRelativeTargetPath);
+            if oLNKFileTarget.fbIsFile():
+              oIconFile = goLinkToInternalFileIconFile 
+              aoChildFileSystemItems = None;
             else:
-              sRelativePath = oSelf.oRootFileSystemItem.sName;
-            sRelativeURL = "/files/%s" % sRelativePath.replace(os.sep, "/");
-            oTreeServer.doFile_by_sRelativeURL[sRelativeURL] = oSelf.oFileSystemItem;
-            oSelf.sType = "iframe";
-            oSelf.xData = sRelativeURL;
-          aoChildFileSystemItems = None;
-      else:
-        oIconFile = goNotFoundIconFile;
+              oIconFile = goLinkToInternalFolderIconFile;
+              aoChildFileSystemItems = [];
+      elif sExtension.lower() == "url":
+        o0URLFileTarget = fo0GetLinkFileTargetURL(oSelf.oFileSystemItem);
+        if o0URLFileTarget is None:
+          oIconFile = goBrokenLinkIconFile;
+        else:
+          if len(aoHTTPClients) > 0 and isinstance(o0URLFileTarget, mHTTP.cURL):
+            oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, o0URLFileTarget);
+            oSelf.sIconURL = str(oFavIconURL) if oFavIconURL else None;
+          oIconFile = gdoLinkIconFile_by_sProtocolHeader.get(o0URLFileTarget.sProtocol, goLinkIconFile);
+          oSelf.sName = oSelf.sName[:-4]; # remove ".url";
+          sLinkURL = str(o0URLFileTarget);
+          oSelf.sToolTip = sLinkURL;
+          oSelf.fLinkToURL(sLinkURL);
         aoChildFileSystemItems = None;
+      else:
+        # icon depends on the extension or media type.
+        sMediaType = mHTTP.fsGetMediaTypeForExtension(sExtension) if sExtension else None;
+        sMainMediaType = sMediaType[:sMediaType.find("/")] if sMediaType else None;
+        oIconFile = (
+          gdoIconFile_by_sFileExtension.get(sExtension.lower())
+          or gdoIconFile_by_sMainMediaType.get(sMainMediaType)
+          or goFileIconFile
+        );
+        sNodeType = gdsNodeType_by_sFileExtension.get(sExtension.lower());
+        if sNodeType:
+          # This is not just a random file, it has a special meaning.
+          # Read the file data.
+          sFileData = oSelf.oFileSystemItem.fsRead(bThrowErrors = bThrowErrors);
+          if sFileData is None:
+            sNodeType = None; # Cannot read file data.
+          elif "\0" in sFileData:
+            # This file does not appear to have text content; treat it as a regular file.
+            sNodeType = None;
+          else:
+            # This is supposed to be a text file: see if we can decode this:
+            sEncoding = (
+              "utf-8-sig" if sFileData.startswith(codecs.BOM_UTF8) else \
+              "utf-16" if sFileData.startswith(codecs.BOM_UTF16_LE) or sFileData.startswith(codecs.BOM_UTF16_BE) else \
+              "utf-32" if sFileData.startswith(codecs.BOM_UTF32_LE) or sFileData.startswith(codecs.BOM_UTF32_BE) else \
+              "utf-8"
+            );
+            try:
+              sFileData = sFileData.decode(sEncoding);
+            except UnicodeError:
+              try:
+                sFileData = sFileData.decode("cp1252");
+              except UnicodeDecodeError:
+                # This file does not appear to have text content that we can decode; treat it as a regular file.
+                sNodeType = None;
+        if sNodeType:
+          # Make sure the data can be utf-8 encoded
+          try:
+            sFileData.encode("utf-8");
+          except UnicodeError as oException:
+            oConsole.fPrint(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
+            oConsole.fPrint(ERROR_INFO, "  ", str(oException));
+            raise;
+          oSelf.sType = sNodeType;
+          oSelf.xData = sFileData;
+        else:
+          if oSelf.oRootFileSystemItem != oSelf.oFileSystemItem:
+            sRelativePath = oSelf.oRootFileSystemItem.fsGetRelativePathTo( \
+                oSelf.oFileSystemItem, bThrowErrors = bThrowErrors);
+          else:
+            sRelativePath = oSelf.oRootFileSystemItem.sName;
+          sRelativeURL = "/files/%s" % sRelativePath.replace(os.sep, "/");
+          oTreeServer.doFile_by_sRelativeURL[sRelativeURL] = oSelf.oFileSystemItem;
+          oSelf.sType = "iframe";
+          oSelf.xData = sRelativeURL;
+        aoChildFileSystemItems = None;
+    else:
+      oIconFile = goNotFoundIconFile;
+      aoChildFileSystemItems = None;
     
     if aoChildFileSystemItems:
       # Step 1: add all child nodes alphabetically as placeholders
@@ -401,7 +401,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
       # Anything else is moved to the bottom and grouped with files.
       aoIndexFileTreeNodes = [];
       for oChildFileSystemTreeNode in aoChildFileSystemTreeNodes:
-        oChildFileSystemTreeNode.fRefreshTree(oTreeServer, aoHTTPClients, bThrowErrors = bThrowErrors);
+        oChildFileSystemTreeNode.fRefreshTree(oTreeServer, aoHTTPClients, bThrowErrors = bThrowErrors, fProgressCallback = fProgressCallback);
         if not oChildFileSystemTreeNode.bGroupWithFolders:
           # Files are grouped below the folders, so move it downwards:
           oSelf.fRemoveChild(oChildFileSystemTreeNode);

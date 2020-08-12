@@ -161,7 +161,9 @@ try:
     oConsole.fPrint("* Server running @ ", INFO, str(oTreeServer.oURL), NORMAL, ".");
   try:
     oConsole.fStatus("* Reading folder tree for ", INFO, oRootFolderFileSystemItem.sPath, NORMAL, "...");
-    oRootFileSystemTreeNode.fRefreshTree(oTreeServer, aoHTTPClients, bThrowErrors = bDebug);
+    def fRefreshTreeProgressCallback(oFileSystemTreeNode):
+      oConsole.fStatus("* Reading folder tree for ", INFO, oFileSystemTreeNode.oFileSystemItem.sPath, NORMAL, "...");
+    oRootFileSystemTreeNode.fRefreshTree(oTreeServer, aoHTTPClients, bThrowErrors = bDebug, fProgressCallback = fRefreshTreeProgressCallback);
     oConsole.fPrint("* Folder tree complete for ", INFO, oRootFolderFileSystemItem.sPath, NORMAL, ".");
     oTreeServer.fMakeStatic();
     if sOfflineFolderPath is not None:
