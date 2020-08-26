@@ -1,28 +1,23 @@
+import os, sys;
+
 from fCheckDependencies import fCheckDependencies;
 fCheckDependencies();
 
 try: # mDebugOutput use is Optional
   from mDebugOutput import *;
 except: # Do nothing if not available.
-  ShowDebugOutput = lambda fxFunction: fxFunction;
-  fShowDebugOutput = lambda sMessage: None;
-  fEnableDebugOutputForModule = lambda mModule: None;
-  fEnableDebugOutputForClass = lambda cClass: None;
-  fEnableAllDebugOutput = lambda: None;
-  cCallStack = fTerminateWithException = fTerminateWithConsoleOutput = None;
+  mDebugOutput = None;
 
 try:
-  import os, sys;
-
   from cFileSystemTreeNode import cFileSystemTreeNode;
   from cTreeServer import cTreeServer;
   from cFileSystemItem import cFileSystemItem;
   from oConsole import oConsole;
   import mHTTP;
   
-  from mColors import *;
   from fPrintUsageInformation import fPrintUsageInformation;
   from fPrintVersionInformation import fPrintVersionInformation;
+  from mColors import *;
   
   bDebug = False;
   aoHTTPClients = [];
@@ -62,7 +57,7 @@ try:
         sSwitchValue = sSwitchValue[1:-1]; # remove wrapping quotes from named argument value
       if sSwitchName == "debug":
         bDebug = True;
-        fEnableAllDebugOutput();
+        if mDebugOutput: mDebugOutput.fEnableAllDebugOutput();
       elif sSwitchName == "help":
         fPrintUsageInformation();
         sys.exit(0);
@@ -225,12 +220,12 @@ try:
       fPrintOrStatus = oConsole.fPrint if bDebug else oConsole.fStatus;
       for sRelativePath in sorted(asExistingAndNewOfflineFileRelativePaths, key=lambda sString: sString.lower()):
         xOfflineFileOrData = dxOfflineFileOrData_by_sRelativePath.get(sRelativePath);
-        sData = xOfflineFileOrData.fsRead(bThrowErrors = bDebug) if isinstance(xOfflineFileOrData, cFileSystemItem) \
+        szData = xOfflineFileOrData.fsRead(bThrowErrors = bDebug) if isinstance(xOfflineFileOrData, cFileSystemItem) \
             else xOfflineFileOrData;
         oExistingOfflineFileOrFolder = doExistingOfflineFileOrFolder_by_sRelativePath.get(sRelativePath);
         if oExistingOfflineFileOrFolder:
           if oExistingOfflineFileOrFolder.fbIsFolder(bThrowErrors = bDebug):
-            if sData is not None:
+            if szData is not None:
               # There is currently a folder with this name but we want a file: delete the folder.
               bDelete = True;
             else:
@@ -250,26 +245,28 @@ try:
               oExistingOfflineFileOrFolder = None;
             else:
               fPrintOrStatus("  = Keeping ", INFO, sRelativePath, "\\", NORMAL, " (folder exists and is needed)");
-          elif sData is None:
+          elif szData is None:
             # This file may be part of a folder that was deleted, so it may no longer exist.
             if oExistingOfflineFileOrFolder.fbExists():
               fPrintOrStatus("  ~ Deleting ", INFO, sRelativePath, NORMAL, " (file no longer needed)");
               if not oExistingOfflineFileOrFolder.fbDelete(bThrowErrors = bDebug):
                 oConsole.fPrint(ERROR, "- Cannot delete file ", ERROR_INFO, oExistingOfflineFileOrFolder.sPath, ERROR, "!");
                 sys.exit(1);
-          elif oExistingOfflineFileOrFolder.fsRead(bThrowErrors = bDebug) == sData:
+          elif oExistingOfflineFileOrFolder.fsRead(bThrowErrors = bDebug) == szData:
             if bDebug:
               fPrintOrStatus("  = Keeping ", INFO, sRelativePath, NORMAL, " (file was not modified)");
           else:
             fPrintOrStatus("  * Saving ", INFO, sRelativePath, NORMAL, " (file is modified)");
-            if not oExistingOfflineFileOrFolder.fbWrite(sData, bThrowErrors = bDebug):
-              oConsole.fPrint(ERROR, "- Cannot write ", ERROR_INFO, str(len(sData)), ERROR, " bytes to ", ERROR_INFO, oExistingOfflineFileOrFolder.sPath, ERROR, "!");
+            if not oExistingOfflineFileOrFolder.fbWrite(szData, bThrowErrors = bDebug):
+              oConsole.fPrint(ERROR, "- Cannot write ", ERROR_INFO, str(len(szData)), ERROR, " bytes to ", ERROR_INFO, oExistingOfflineFileOrFolder.sPath, ERROR, "!");
               sys.exit(1);
         else:
+          assert szData is not None, \
+              "File or folder %s does not exist but there is also no data for it!?" % sRelativePath;
           oOfflineFile = oOfflineFolder.foGetDescendant(sRelativePath, bThrowErrors = bDebug);
           fPrintOrStatus("  + Saving ", INFO, sRelativePath, NORMAL, " (new file)");
-          if not oOfflineFile.fbCreateAsFile(sData, bCreateParents = True, bParseZipFiles = False, bThrowErrors = bDebug):
-            oConsole.fPrint(ERROR, "- Cannot write ", ERROR_INFO, str(len(sData)), ERROR, " bytes to ", ERROR_INFO, oOfflineFile.sPath, ERROR, "!");
+          if not oOfflineFile.fbCreateAsFile(szData, bCreateParents = True, bParseZipFiles = False, bThrowErrors = bDebug):
+            oConsole.fPrint(ERROR, "- Cannot write ", ERROR_INFO, str(len(szData)), ERROR, " bytes to ", ERROR_INFO, oOfflineFile.sPath, ERROR, "!");
             sys.exit(1);
     else:
       oConsole.fStatus("* Waiting for server to terminate...");
