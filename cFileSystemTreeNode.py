@@ -144,8 +144,8 @@ def fbSetLNKFileTarget(oLNKFile, oNewTarget):
       "Powershell terminated with exit code %d.\n  stdout = %s\n  stderr = %s" % (oPowerShellProcess.uExitCode, repr(sStdOut), repr(sStdErr));
   return "ok" == sStdOut.strip();
 
-
-gdoIconFile_by_sMainMediaType = {
+# Media types consist of a "type" and a "subtype". We assign icons based on the "type" part.
+gdoIconFile_by_sMediaTypeType = {
   "application": goBinaryFileIconFile,
   "video": goVideoFileIconFile,
   "audio": goAudioFileIconFile,
@@ -324,12 +324,16 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           oSelf.fLinkToURL(sLinkURL);
         aoChildFileSystemItems = None;
       else:
-        # icon depends on the extension or media type.
-        sMediaType = mHTTP.fsGetMediaTypeForExtension(sExtension) if sExtension else None;
-        sMainMediaType = sMediaType[:sMediaType.find("/")] if sMediaType else None;
+        # Convert extension to media type, if any, then get the "type" part of the media type, if any:
+        s0MediaType = mHTTP.fs0GetMediaTypeForExtension(sExtension) if sExtension else None;
+        s0MediaTypeType = s0MediaType[:s0MediaType.find("/")] if s0MediaType else None;
         oIconFile = (
+          # If we have an icon for this specifc extension, use that:
           gdoIconFile_by_sFileExtension.get(sExtension.lower())
-          or gdoIconFile_by_sMainMediaType.get(sMainMediaType)
+          # Otherwise, if we have an icon for the "type" part of the media type
+          # associated with the extension, use that:
+          or gdoIconFile_by_sMediaTypeType.get(s0MediaTypeType)
+          # Otherwise use a default icon
           or goFileIconFile
         );
         sNodeType = gdsNodeType_by_sFileExtension.get(sExtension.lower());
