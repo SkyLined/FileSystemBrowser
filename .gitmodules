@@ -43,3 +43,6 @@
 [submodule "modules\\mProductDetails"]
 	path = modules\\mProductDetails
 	url = https://github.com/SkyLined/mProductDetails
+[submodule "modules/mNotProvided"]
+	path = modules/mNotProvided
+	url = https://github.com/SkyLined/mNotProvided/
