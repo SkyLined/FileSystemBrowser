@@ -1,11 +1,12 @@
 import base64, codecs, os, re;
+
 from cTreeServer import cTreeServer;
 from cFileSystemItem import cFileSystemItem;
 import mHTTP, mWindowsAPI;
 from oConsole import oConsole;
-from mColors import *;
 
 from foGetFavIconURLForHTTPClientsAndURL import foGetFavIconURLForHTTPClientsAndURL;
+from mColors import *;
 
 grEMailAddress = re.compile(
   "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\x22(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\x22)"

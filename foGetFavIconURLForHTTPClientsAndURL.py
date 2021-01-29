@@ -1,6 +1,8 @@
 import re;
+
 from mHTTP.mExceptions import cHTTPException, cTCPIPException, cSSLException;
 from oConsole import oConsole;
+
 from mColors import *;
 
 grFavIconLinkElement = re.compile(
