@@ -1,4 +1,8 @@
 {
+  "asProductTypes": ["Python application"],
+  "asPythonApplicationNames": [
+    "FileSystemBrowser"
+  ],
   "asDependentOnProductNames": [
     "cFileSystemItem", 
     "cTreeServer", 
