@@ -1,8 +1,4 @@
 {
-  "asProductTypes": ["Python application"],
-  "asPythonApplicationNames": [
-    "FileSystemBrowser"
-  ],
   "asDependentOnProductNames": [
     "cFileSystemItem", 
     "cTreeServer", 
@@ -11,7 +7,7 @@
     "mHTTPConnections", 
     "mHTTPProtocol", 
     "mMultiThreading", 
-    "mNotProvided",
+    "mNotProvided", 
     "mProductDetails", 
     "mRegistry", 
     "mSSL", 
@@ -20,18 +16,24 @@
     "mWindowsSDK", 
     "oConsole"
   ], 
+  "asJavaScriptModuleNames": [], 
   "asOptionalProductNames": [
     "mDebugOutput"
   ], 
-  "oProductVersion": "2020-08-12 11:55", 
+  "asPHPModuleNames": [], 
+  "asProductTypes": [
+    "Python application"
+  ], 
+  "asPythonApplicationNames": [
+    "FileSystemBrowser"
+  ], 
+  "oProductVersion": "2021-03-01 10:15", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "FileSystemBrowser", 
     "sType": "GitHub", 
     "sUserName": "SkyLined"
   }, 
-  "oTrialPeriodDuration": null, 
-  "sLicenseServerURL": null, 
   "sProductAuthor": "SkyLined", 
   "sProductName": "FileSystemBrowser", 
   "sProductURL": "https://github.com/SkyLined/FileSystemBrowser"
