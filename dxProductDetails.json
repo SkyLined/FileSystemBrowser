@@ -4,6 +4,7 @@
     "cTreeServer", 
     "mDateTime", 
     "mHTTP", 
+    "mHumanReadable",
     "mHTTPConnections", 
     "mHTTPProtocol", 
     "mMultiThreading", 
