@@ -46,3 +46,6 @@
 [submodule "modules/mNotProvided"]
 	path = modules/mNotProvided
 	url = https://github.com/SkyLined/mNotProvided/
+[submodule "modules/mHumanReadable"]
+	path = modules/mHumanReadable
+	url = https://github.com/SkyLined/mHumanReadable/
