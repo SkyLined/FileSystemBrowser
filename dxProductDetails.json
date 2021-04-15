@@ -4,7 +4,7 @@
     "cTreeServer", 
     "mDateTime", 
     "mHTTP", 
-    "mHumanReadable",
+    "mHumanReadable", 
     "mHTTPConnections", 
     "mHTTPProtocol", 
     "mMultiThreading", 
@@ -28,7 +28,7 @@
   "asPythonApplicationNames": [
     "FileSystemBrowser"
   ], 
-  "oProductVersion": "2021-03-01 18:50", 
+  "oProductVersion": "2021-04-15 11:42", 
   "oRepository": {
     "sBranch": "master", 
     "sRepositoryName": "FileSystemBrowser", 
