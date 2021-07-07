@@ -1,41 +1,44 @@
 {
-  "asDependentOnProductNames": [
-    "cFileSystemItem", 
-    "cTreeServer", 
-    "mDateTime", 
-    "mHTTP", 
-    "mHumanReadable", 
-    "mHTTPConnections", 
-    "mHTTPProtocol", 
-    "mMultiThreading", 
-    "mNotProvided", 
-    "mProductDetails", 
-    "mRegistry", 
-    "mSSL", 
-    "mTCPIPConnections", 
-    "mWindowsAPI", 
-    "mWindowsSDK", 
-    "oConsole"
-  ], 
-  "asJavaScriptModuleNames": [], 
-  "asOptionalProductNames": [
+  "a0sDebugAdditionalProductNames": [
     "mDebugOutput"
-  ], 
-  "asPHPModuleNames": [], 
+  ],
+  "a0sDependentOnProductNames": [
+    "mFileSystemItem",
+    "mTreeServer",
+    "mDateTime",
+    "mHumanReadable",
+    "mHTTPConnection",
+    "mHTTPProtocol",
+    "mMultiThreading",
+    "mNotProvided",
+    "mProductDetails",
+    "mRegistry",
+    "mTCPIPConnection",
+    "mWindowsAPI",
+    "mWindowsSDK",
+    "mConsole"
+  ],
+  "a0sPythonApplicationNames": [
+    "FileSystemBrowser"
+  ],
+  "a0sReleaseAdditionalProductNames": [
+    "mHTTPClient",
+    "mHTTPServer",
+    "mSSL"
+  ],
   "asProductTypes": [
     "Python application"
-  ], 
-  "asPythonApplicationNames": [
-    "FileSystemBrowser"
-  ], 
-  "oProductVersion": "2021-04-15 11:42", 
-  "oRepository": {
-    "sBranch": "master", 
-    "sRepositoryName": "FileSystemBrowser", 
-    "sType": "GitHub", 
-    "sUserName": "SkyLined"
-  }, 
-  "sProductAuthor": "SkyLined", 
-  "sProductName": "FileSystemBrowser", 
-  "sProductURL": "https://github.com/SkyLined/FileSystemBrowser"
+  ],
+  "o0Repository": {
+    "sStructureVersion": "2021-07-02 11:16",
+    "sType": "GitHub",
+    "sbBranch": "master",
+    "sbRepositoryName": "FileSystemBrowser",
+    "sbUserName": "SkyLined"
+  },
+  "oProductVersion": "2021-07-07 13:13",
+  "sProductAuthor": "SkyLined",
+  "sProductName": "FileSystemBrowser",
+  "sStructureVersion": "2021-07-02 11:16",
+  "sb0ProductURL": "https://github.com/SkyLined/FileSystemBrowser"
 }

@@ -1,192 +1,19 @@
-import base64, codecs, os, re;
+import codecs, os;
 
-from cTreeServer import cTreeServer;
-from cFileSystemItem import cFileSystemItem;
-import mHTTP, mWindowsAPI;
-from oConsole import oConsole;
+from mTreeServer import cTreeServer;
+import mHTTPProtocol;
+from mConsole import oConsole;
 
+from cMailToURL import cMailToURL;
+from fbSetLNKFileTarget import fbSetLNKFileTarget;
 from foGetFavIconURLForHTTPClientsAndURL import foGetFavIconURLForHTTPClientsAndURL;
+from foGetLinkFileTargetFileSystemItem import foGetLinkFileTargetFileSystemItem;
+from fo0GetLinkFileTargetURL import fo0GetLinkFileTargetURL;
+from fs0GetLinkFileTarget import fs0GetLinkFileTarget;
 from mColors import *;
+from mIcons import *;
 
-grEMailAddress = re.compile(
-  "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\x22(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\x22)"
-  "@"
-  "(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
-);
-goIconsFolder = cFileSystemItem(__file__).oParent.foGetChild("icons", bMustBeFolder = True);
-
-goAudioFileIconFile = goIconsFolder.foGetChild("file-audio.png", bMustBeFile = True);
-goBadZipFileIconFile = goIconsFolder.foGetChild("file-zip-bad.png", bMustBeFile = True);
-goBinaryFileIconFile = goIconsFolder.foGetChild("file-binary.png", bMustBeFile = True);
-goBrokenLinkIconFile = goIconsFolder.foGetChild("link-broken.png", bMustBeFile = True);
-goDocumentFileIconFile = goIconsFolder.foGetChild("file-document.png", bMustBeFile = True);
-goFileIconFile = goIconsFolder.foGetChild("file.png", bMustBeFile = True);
-goFolderEmptyIconFile = goIconsFolder.foGetChild("folder-empty.png", bMustBeFile = True);
-goFolderEmptyWithIndexIconFile = goIconsFolder.foGetChild("folder-empty-with-index.png", bMustBeFile = True);
-goFolderWithContentIconFile = goIconsFolder.foGetChild("folder-with-content.png", bMustBeFile = True);
-goFolderWithContentAndIndexIconFile = goIconsFolder.foGetChild("folder-with-content-and-index.png", bMustBeFile = True);
-goGitFileIconFile = goIconsFolder.foGetChild("file-git.png", bMustBeFile = True);
-goImageFileIconFile = goIconsFolder.foGetChild("file-image.png", bMustBeFile = True);
-goLinkIconFile = goIconsFolder.foGetChild("link.png", bMustBeFile = True);
-goLinkToWebSiteIconFile = goIconsFolder.foGetChild("link-to-website.png", bMustBeFile = True);
-goLinkToSecureWebSiteIconFile = goIconsFolder.foGetChild("link-to-secure-website.png", bMustBeFile = True);
-goLinkToEmailIconFile = goIconsFolder.foGetChild("email.png", bMustBeFile = True);
-goLinkToInternalFileIconFile = goIconsFolder.foGetChild("link-to-file.png", bMustBeFile = True);
-goLinkToInternalFolderIconFile = goIconsFolder.foGetChild("link-to-folder.png", bMustBeFile = True);
-goLinkToExternalFolderIconFile = goIconsFolder.foGetChild("folder-link.png", bMustBeFile = True);
-goNotFoundIconFile = goIconsFolder.foGetChild("not-found.png", bMustBeFile = True);
-goPresentationFileIconFile = goIconsFolder.foGetChild("file-presentation.png", bMustBeFile = True);
-goSourceFileIconFile = goIconsFolder.foGetChild("file-source.png", bMustBeFile = True);
-goSpreadsheetFileIconFile = goIconsFolder.foGetChild("file-spreadsheet.png", bMustBeFile = True);
-goTextFileIconFile = goIconsFolder.foGetChild("file-text.png", bMustBeFile = True);
-goUnknownFileIconFile = goIconsFolder.foGetChild("file-unknown.png", bMustBeFile = True);
-goUnknownFolderIconFile = goIconsFolder.foGetChild("folder-unknown.png", bMustBeFile = True);
-goUnknownIconFile = goIconsFolder.foGetChild("unknown.png", bMustBeFile = True);
-goValidZipFileIconFile = goIconsFolder.foGetChild("file-zip.png", bMustBeFile = True);
-goVideoFileIconFile = goIconsFolder.foGetChild("file-video.png", bMustBeFile = True);
-goVisualStudioFileIconFile = goIconsFolder.foGetChild("file-visual-studio.png", bMustBeFile = True);
-
-gsPowershellBinaryFilePath = os.path.join(os.getenv("WinDir"), r"System32\WindowsPowerShell\v1.0\powershell.exe");
-gsPowershellBinaryFilePath = r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe";
-gsPowershellScriptTemplateToExtractTargetFromLinkFile = (
-  "Write-Output ("
-    "[System.Convert]::ToBase64String("
-      "[System.Text.Encoding]::UTF8.GetBytes("
-        "("
-          "New-Object -ComObject WScript.Shell"
-        ").CreateShortcut("
-          "[System.Text.Encoding]::UTF8.GetString("
-            "[System.Convert]::FromBase64String("
-              "%s"
-            ")"
-          ")"
-        ").TargetPath"
-      ")"
-    ")"
-  ");"
-);
-def fs0GetLinkFileTarget(oLinkFile):
-  # This should work for .LNK and .URL files.
-  sEncodedLinkPath = '"%s"' % base64.b64encode(unicode(oLinkFile.sPath).encode("utf-8"));
-  sPowershellScript = gsPowershellScriptTemplateToExtractTargetFromLinkFile % sEncodedLinkPath;
-  oPowerShellProcess = mWindowsAPI.cConsoleProcess.foCreateForBinaryPathAndArguments(
-    sBinaryPath = gsPowershellBinaryFilePath,
-    asArguments = ["-Command", "&", "{%s}" % sPowershellScript],
-    bRedirectStdOut = True,
-    bRedirectStdErr = True,
-  );
-  sStdOut = oPowerShellProcess.oStdOutPipe.fsReadBytes();
-  assert oPowerShellProcess.fbWait(), \
-      "Could not wait for PowerShell to terminate!?";
-  sStdErr = oPowerShellProcess.oStdErrPipe.fsReadBytes();
-  assert sStdErr == "" and oPowerShellProcess.uExitCode == 0, \
-      "Powershell terminated with exit code %d.\n  command = %s\n  stdout = %s\n  stderr = %s" % (oPowerShellProcess.uExitCode, repr(sPowershellScript), repr(sStdOut), repr(sStdErr));
-  sEncodedPath = sStdOut.strip();
-  return base64.b64decode(sEncodedPath).decode("utf-8") if sEncodedPath else None;
-
-def foGetLinkFileTargetFileSystemItem(oLinkFile):
-  # This should work for .LNK and .URL files.
-  s0TargetPath = fs0GetLinkFileTarget(oLinkFile);
-  return cFileSystemItem(s0TargetPath) if s0TargetPath else None;
-
-class cMailToURL(object):
-  sProtocol = "mailto";
-  @classmethod
-  def fbIsValidMailToURL(cClass, sMailToURL):
-    return sMailToURL.lower().startswith("%s:" % cClass.sProtocol) and cClass.fbIsValidEMailAddress(sMailToURL[7:]);
-  
-  @staticmethod
-  def fbIsValidEMailAddress(sEMailAddress):
-    return grEMailAddress.match(sEMailAddress) is not None;
-  
-  @classmethod
-  def fo0FromString(cClass, sMailToURL):
-    return cClass(sMailToURL[7:]) if cClass.fbIsValidMailToURL(sMailToURL) else None;
-  
-  def __init__(oSelf, sEMailAddress):
-    oSelf.sEMailAddress = sEMailAddress;
-  
-  @property
-  def sEMailAddress(oSelf):
-    return oSelf.__sEMailAddress;
-  
-  @sEMailAddress.setter
-  def sEMailAddress(oSelf, sEMailAddress):
-    assert oSelf.fbIsValidEMailAddress(sEMailAddress), \
-        "Invalid email address %s" % repr(sEMailAddress);
-    oSelf.__sEMailAddress = sEMailAddress;
-  
-  def fsToString(oSelf):
-    return "%s{%s}" % (oSelf.__class__.__name__, oSelf.__sEMailAddress);
-    
-  def __str__(oSelf):
-    return "%s:%s" % (oSelf.sProtocol, oSelf.sEMailAddress);
-
-def fo0GetLinkFileTargetURL(oLinkFile):
-  s0TargetURL = fs0GetLinkFileTarget(oLinkFile);
-  return (cMailToURL.fo0FromString(s0TargetURL) or mHTTP.cURL.foFromString(s0TargetURL)) \
-      if s0TargetURL else None;
-
-gsPowershellScriptTemplateToModifyTargetInLNKFile = \
-    "$oShortcut = (New-Object -ComObject WScript.Shell).CreateShortcut(\"%s\");$oShortcut.TargetPath = \"%s\";$oShortcut.Save();Write-Output (\"ok\");";
-def fbSetLNKFileTarget(oLNKFile, oNewTarget):
-  sPowershellScript = gsPowershellScriptTemplateToModifyTargetInLNKFile % (oLNKFile.sPath, oNewTarget.sPath);
-  oPowerShellProcess = mWindowsAPI.cConsoleProcess.foCreateForBinaryPathAndArguments(
-    sBinaryPath = gsPowershellBinaryFilePath,
-    asArguments = ["-Command", "& {%s}" % sPowershellScript],
-    bRedirectStdOut = True,
-    bRedirectStdErr = True,
-  );
-  sStdOut = oPowerShellProcess.oStdOutPipe.fsReadBytes();
-  assert oPowerShellProcess.fbWait(), \
-      "Could not wait for PowerShell to terminate!?";
-  sStdErr = oPowerShellProcess.oStdErrPipe.fsReadBytes();
-  assert sStdErr == "" and oPowerShellProcess.uExitCode == 0, \
-      "Powershell terminated with exit code %d.\n  stdout = %s\n  stderr = %s" % (oPowerShellProcess.uExitCode, repr(sStdOut), repr(sStdErr));
-  return "ok" == sStdOut.strip();
-
-# Media types consist of a "type" and a "subtype". We assign icons based on the "type" part.
-gdoIconFile_by_sMediaTypeType = {
-  "application": goBinaryFileIconFile,
-  "video": goVideoFileIconFile,
-  "audio": goAudioFileIconFile,
-  "image": goImageFileIconFile,
-  "text": goTextFileIconFile,
-};
-gdoIconFile_by_sFileExtension = {
-  "c":    goSourceFileIconFile,
-  "cmd":  goSourceFileIconFile,
-  "cpp":  goSourceFileIconFile,
-  "css":  goSourceFileIconFile,
-  "cxx":  goSourceFileIconFile,
-  "doc":  goDocumentFileIconFile,
-  "docx": goDocumentFileIconFile,
-  "git":  goGitFileIconFile,
-  "gitattributes": goGitFileIconFile,
-  "gitignore": goGitFileIconFile,
-  "gitmodules": goGitFileIconFile,
-  "h":    goSourceFileIconFile,
-  "htm":  goDocumentFileIconFile,
-  "html": goDocumentFileIconFile,
-  "hxx":  goSourceFileIconFile,
-  "java": goSourceFileIconFile,
-  "js":   goSourceFileIconFile,
-  "json": goSourceFileIconFile,
-  "md":   goDocumentFileIconFile,
-  "pdf":  goDocumentFileIconFile,
-  "ppt":  goPresentationFileIconFile,
-  "pptx": goPresentationFileIconFile,
-  "ps1":  goSourceFileIconFile,
-  "py":   goSourceFileIconFile,
-  "rtf":  goDocumentFileIconFile,
-  "sln":  goVisualStudioFileIconFile,
-  "svg":  goImageFileIconFile,
-  "txt":  goTextFileIconFile,
-  "vbs":  goSourceFileIconFile,
-  "xls":  goSpreadsheetFileIconFile,
-  "xlsx": goSpreadsheetFileIconFile,
-};
-gdsNodeType_by_sFileExtension = {
+gdsTextNodeType_by_sFileExtension = {
   "c":    "text",
   "cmd":  "text",
   "cpp":  "text",
@@ -211,17 +38,25 @@ gdsNodeType_by_sFileExtension = {
   "txt":  "text",
   "vbs":  "text",
 };
-gdoLinkIconFile_by_sProtocolHeader = {
-  "mailto:": goLinkToEmailIconFile,
-  "http://": goLinkToWebSiteIconFile,
-  "https://": goLinkToSecureWebSiteIconFile,
+gdsNodeType_by_sMediaTypeType = {
+  b"video": "video",
+  b"audio": "audio",
+  b"image": "image",
+  b"text": "text",
 };
 
 class cFileSystemTreeNode(cTreeServer.cTreeNode):
   sNamespace = "cFileSystemTreeNode";
   oIconsFolder = goIconsFolder;
-  def __init__(oSelf, oFileSystemItem, oRootFileSystemItem = None, sId = None, bOpened = None, \
-      bDisabled = None, bSelected = None, aoHTTPClients = None):
+  def __init__(oSelf,
+    oFileSystemItem,
+    oRootFileSystemItem = None,
+    sId = None,
+    bOpened = None,
+    bDisabled = None,
+    bSelected = None,
+    aoHTTPClients = None
+  ):
     cTreeServer.cTreeNode.__init__(oSelf, oFileSystemItem.sName, sId = sId, \
         oIconFile = goUnknownIconFile, bOpened = bOpened, bDisabled = bDisabled, bSelected = bSelected);
     oSelf.oFileSystemItem = oFileSystemItem;
@@ -238,13 +73,13 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
       oIconFile = goFolderEmptyIconFile if len(aoChildFileSystemItems) == 0 else goFolderWithContentIconFile;
       oSelf.oIconFile = goUnknownFolderIconFile;
     elif oSelf.oFileSystemItem.fbIsFile(bThrowErrors = bThrowErrors):
-      sExtension = oSelf.oFileSystemItem.sExtension;
+      s0Extension = oSelf.oFileSystemItem.sExtension;
       oSelf.oIconFile = goUnknownFileIconFile;
-      if not sExtension:
+      if not s0Extension:
         # No extension
         oIconFile = goFileIconFile;
         aoChildFileSystemItems = None;
-      elif sExtension.lower() == "zip":
+      elif s0Extension.lower() == "zip":
         if oSelf.oFileSystemItem.fbIsValidZipFile(bThrowErrors = bThrowErrors):
           # Let's keep this zip file open while we are done.
           oIconFile = goValidZipFileIconFile;
@@ -254,10 +89,10 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           # .zip extension but not a valid zip file (or it would have been handles in the code above).
           oIconFile = goBadZipFileIconFile;
           aoChildFileSystemItems = None;
-      elif sExtension.lower() == "lnk":
+      elif s0Extension.lower() == "lnk":
         oLNKFileTarget = foGetLinkFileTargetFileSystemItem(oSelf.oFileSystemItem);
         if oLNKFileTarget is None:
-          oConsole.fPrint(ERROR, "- Link file: ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, " is broken!");
+          oConsole.fOutput(ERROR, "- Link file: ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, " is broken!");
           oSelf.sToolTip = "Link file is broken.";
           oIconFile = goBrokenLinkIconFile;
           aoChildFileSystemItems = None;
@@ -270,7 +105,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(oLNKFileTarget, bThrowErrors = False);
           bLinkIsValid = sRelativeTargetPath and oLNKFileTarget.fbExists();
           if not bLinkIsValid:
-            oConsole.fPrint(WARNING, "- Link file ", WARNING_INFO, oSelf.oFileSystemItem.sPath, WARNING, " links to ",
+            oConsole.fOutput(WARNING, "- Link file ", WARNING_INFO, oSelf.oFileSystemItem.sPath, WARNING, " links to ",
               "a file or folder outside of the visible tree" if sRelativeTargetPath is None
               else "a missing file or folder",
               " (", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ")!");
@@ -285,14 +120,14 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
                 oLNKFileTarget = oPotentialTarget;
                 bLinkIsValid = True;
                 if not fbSetLNKFileTarget(oSelf.oFileSystemItem, oLNKFileTarget):
-                  oConsole.fPrint(ERROR, "  Cannot redirect the link to ", ERROR_INFO, oLNKFileTarget.sPath, ERROR, ".");
+                  oConsole.fOutput(ERROR, "  Cannot redirect the link to ", ERROR_INFO, oLNKFileTarget.sPath, ERROR, ".");
                 else:
-                  oConsole.fPrint(WARNING, "  The link has been redirected to ", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ".");
+                  oConsole.fOutput(WARNING, "  The link has been redirected to ", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ".");
                 break;
               sPotentialRelativeTargetPath = oPotentialTargetOriginalParent.sName + os.sep + sPotentialRelativeTargetPath;
               oPotentialTargetOriginalParent = oPotentialTargetOriginalParent.oParent;
             else:
-              oConsole.fPrint(ERROR, "  The link cannot be fixed!");
+              oConsole.fOutput(ERROR, "  The link cannot be fixed!");
           if not bLinkIsValid:
             oSelf.sToolTip = (
               "Link target is outside of visible tree." if sRelativeTargetPath is None
@@ -310,68 +145,78 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             else:
               oIconFile = goLinkToInternalFolderIconFile;
               aoChildFileSystemItems = [];
-      elif sExtension.lower() == "url":
+      elif s0Extension.lower() == "url":
         o0URLFileTarget = fo0GetLinkFileTargetURL(oSelf.oFileSystemItem);
         if o0URLFileTarget is None:
           oIconFile = goBrokenLinkIconFile;
         else:
-          if len(aoHTTPClients) > 0 and isinstance(o0URLFileTarget, mHTTP.cURL):
+          if len(aoHTTPClients) > 0 and isinstance(o0URLFileTarget, mHTTPProtocol.cURL):
             oFavIconURL = foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, o0URLFileTarget);
             oSelf.sIconURL = str(oFavIconURL) if oFavIconURL else None;
-          oIconFile = gdoLinkIconFile_by_sProtocolHeader.get(o0URLFileTarget.sProtocol, goLinkIconFile);
+          oIconFile = gdoLinkIconFile_by_sbProtocolHeader.get(o0URLFileTarget.sbProtocol, goLinkIconFile);
           oSelf.sName = oSelf.sName[:-4]; # remove ".url";
           sLinkURL = str(o0URLFileTarget);
           oSelf.sToolTip = sLinkURL;
           oSelf.fLinkToURL(sLinkURL);
         aoChildFileSystemItems = None;
       else:
+        sExtension = s0Extension; # Never None at this point.
         # Convert extension to media type, if any, then get the "type" part of the media type, if any:
-        s0MediaType = mHTTP.fs0GetMediaTypeForExtension(sExtension) if sExtension else None;
-        s0MediaTypeType = s0MediaType[:s0MediaType.find("/")] if s0MediaType else None;
+        sb0MediaType = mHTTPProtocol.fsb0GetMediaTypeForExtension(s0Extension);
+        sb0MediaTypeType = sb0MediaType.split(b"/", 1)[0] if sb0MediaType else None;
         oIconFile = (
           # If we have an icon for this specifc extension, use that:
           gdoIconFile_by_sFileExtension.get(sExtension.lower())
           # Otherwise, if we have an icon for the "type" part of the media type
           # associated with the extension, use that:
-          or gdoIconFile_by_sMediaTypeType.get(s0MediaTypeType)
+          or gdoIconFile_by_sbMediaTypeType.get(sb0MediaTypeType)
           # Otherwise use a default icon
           or goFileIconFile
         );
-        sNodeType = gdsNodeType_by_sFileExtension.get(sExtension.lower());
-        if sNodeType:
+        s0TextNodeType = gdsTextNodeType_by_sFileExtension.get(sExtension.lower());
+        
+        if s0TextNodeType:
           # This is not just a random file, it has a special meaning.
           # Read the file data.
-          sFileData = oSelf.oFileSystemItem.fsRead(bThrowErrors = bThrowErrors);
-          if sFileData is None:
-            sNodeType = None; # Cannot read file data.
-          elif "\0" in sFileData:
-            # This file does not appear to have text content; treat it as a regular file.
-            sNodeType = None;
-          else:
-            # This is supposed to be a text file: see if we can decode this:
-            sEncoding = (
-              "utf-8-sig" if sFileData.startswith(codecs.BOM_UTF8) else \
-              "utf-16" if sFileData.startswith(codecs.BOM_UTF16_LE) or sFileData.startswith(codecs.BOM_UTF16_BE) else \
-              "utf-32" if sFileData.startswith(codecs.BOM_UTF32_LE) or sFileData.startswith(codecs.BOM_UTF32_BE) else \
-              "utf-8"
-            );
-            try:
-              sFileData = sFileData.decode(sEncoding);
-            except UnicodeError:
-              try:
-                sFileData = sFileData.decode("cp1252");
-              except UnicodeDecodeError:
-                # This file does not appear to have text content that we can decode; treat it as a regular file.
-                sNodeType = None;
-        if sNodeType:
-          # Make sure the data can be utf-8 encoded
-          try:
-            sFileData.encode("utf-8");
-          except UnicodeError as oException:
-            oConsole.fPrint(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
-            oConsole.fPrint(ERROR_INFO, "  ", str(oException));
-            raise;
-          oSelf.sType = sNodeType;
+          sb0FileData = oSelf.oFileSystemItem.fsbRead(bThrowErrors = bThrowErrors);
+          if sb0FileData is not None:
+            sbFileData = sb0FileData;
+            if b"\0" in sbFileData:
+              # This file does not appear to have text content; treat it as a regular file.
+              s0TextNodeType = None;
+            else:
+              # This is supposed to be a text file; if there is a BOM, try to decode based on that:
+              s0Encoding = (
+                "utf-8-sig" if sbFileData.startswith(codecs.BOM_UTF8) else \
+                "utf-16" if sbFileData.startswith(codecs.BOM_UTF16_LE) or sbFileData.startswith(codecs.BOM_UTF16_BE) else \
+                "utf-32" if sbFileData.startswith(codecs.BOM_UTF32_LE) or sbFileData.startswith(codecs.BOM_UTF32_BE) else \
+                None
+              );
+              if s0Encoding:
+                try:
+                  sFileData = str(sbFileData, s0Encoding);
+                except UnicodeError:
+                  s0TextNodeType = None;
+              else:
+                # Otherwise, try utf-8 first, then cp1252. If noth fail, assume it is not a text file.
+                try:
+                  sFileData = str(sbFileData, "utf-8");
+                except UnicodeDecodeError:
+                  try:
+                    sFileData = str(sbFileData, "cp1252");
+                  except UnicodeDecodeError:
+                    # This file does not appear to have text content that we can decode; treat it as a regular file.
+                    s0TextNodeType = None;
+              if s0TextNodeType:
+                # Make sure the data can be utf-8 encoded
+                try:
+                  bytes(sFileData, "utf-8");
+                except UnicodeError as oException:
+                  oConsole.fOutput(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
+                  oConsole.fOutput(ERROR_INFO, "  ", str(oException));
+                  raise;
+        if s0TextNodeType:
+          oSelf.sType = s0TextNodeType;
           oSelf.xData = sFileData;
         else:
           if oSelf.oRootFileSystemItem != oSelf.oFileSystemItem:
@@ -381,7 +226,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             sRelativePath = oSelf.oRootFileSystemItem.sName;
           sRelativeURL = "/files/%s" % sRelativePath.replace(os.sep, "/");
           oTreeServer.doFile_by_sRelativeURL[sRelativeURL] = oSelf.oFileSystemItem;
-          oSelf.sType = "iframe";
+          oSelf.sType = gdsNodeType_by_sMediaTypeType.get(sb0MediaTypeType, "iframe");
           oSelf.xData = sRelativeURL;
         aoChildFileSystemItems = None;
     else:
@@ -394,7 +239,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
         (oItem.sName, oItem) for oItem in aoChildFileSystemItems
       ]) if aoChildFileSystemItems else {};
       aoChildFileSystemTreeNodes = [];
-      asSortedNames = doChildFileSystemItem_by_sName.keys();
+      asSortedNames = list(doChildFileSystemItem_by_sName.keys());
       asSortedNames.sort();
       for sName in asSortedNames:
         oChildFileSystemItem = doChildFileSystemItem_by_sName[sName];

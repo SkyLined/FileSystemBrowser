@@ -1,4 +1,4 @@
-from oConsole import oConsole;
+from mConsole import oConsole;
 
 from mColors import *;
 
@@ -13,16 +13,25 @@ def fPrintUsageInformation():
     oConsole.fOutput("      Path to use as the root node (default = current working directory)");
     oConsole.fOutput();
     oConsole.fOutput(HILITE, "Options:");
-    oConsole.fOutput("  ", INFO, "--help");
+    oConsole.fOutput("  ", INFO, "-h", NORMAL, ", ", INFO, "--help");
     oConsole.fOutput("    This cruft.");
-    oConsole.fOutput("  ", INFO, "--arguments=\"path\"");
-    oConsole.fOutput("    Read and process additional arguments from a file.");
+    oConsole.fOutput("  ", INFO, "--version");
+    oConsole.fOutput("    Show version information.");
+    oConsole.fOutput("  ", INFO, "--version-check");
+    oConsole.fOutput("    Check for updates and show version information.");
+    oConsole.fOutput("  ", INFO, "--license");
+    oConsole.fOutput("    Show license information.");
+    oConsole.fOutput("  ", INFO, "--license-update");
+    oConsole.fOutput("    Download license updates and show license information.");
+    oConsole.fOutput("  ", INFO, "--arguments", NORMAL, "=<", INFO, "file path", NORMAL, ">");
+    oConsole.fOutput("    Load additional arguments from the provided value and insert them in place");
+    oConsole.fOutput("    of this argument.");
+    
+    oConsole.fOutput("  ", INFO, "--debug");
+    oConsole.fOutput("    Show debug output.");
     oConsole.fOutput("  ", INFO, "--offline=\"path\"");
     oConsole.fOutput("    Do not start a webserver to allow browsing but instead create files for");
     oConsole.fOutput("    offline browsing or uploading to server.");
-    oConsole.fOutput("  ", INFO, "--apply-sharepoint-hacks");
-    oConsole.fOutput("    Modify offline files for use on SharePoint server where .json files are not");
-    oConsole.fOutput("    allowed.");
     oConsole.fOutput("  ", INFO, "--http-direct");
     oConsole.fOutput("    Make direct requests to look up favicons for website links.");
     oConsole.fOutput("  ", INFO, "--http-proxy=hostname:port");
@@ -31,8 +40,8 @@ def fPrintUsageInformation():
     oConsole.fOutput("  ", INFO, "--http-timeout=<seconds>");
     oConsole.fOutput("    Wait for a HTTP response from a server or proxy for at most the given number");
     oConsole.fOutput("    of seconds before failing the request.");
-    oConsole.fOutput("  ", INFO, "--debug");
-    oConsole.fOutput("    Show debug output");
+    oConsole.fOutput("  ", INFO, "--arguments=\"path\"");
+    oConsole.fOutput("    Read and insert additional arguments from a file.");
     oConsole.fOutput("");
     oConsole.fOutput(HILITE, "Notes:");
     oConsole.fOutput("  You can provide the ", INFO, "--http-direct", NORMAL, " and/or ", INFO, "--http-proxy", NORMAL, " arguments to allow");

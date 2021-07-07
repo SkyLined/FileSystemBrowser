@@ -1,7 +1,17 @@
 import re;
 
-from mHTTP.mExceptions import cHTTPException, cTCPIPException, cSSLException;
-from oConsole import oConsole;
+from mHTTPConnection.mExceptions import cHTTPException;
+from mTCPIPConnection.mExceptions import cTCPIPException, cSSLException;
+try: # mSSL support is optional
+  from mSSL.mExceptions import cSSLException;
+except ModuleNotFoundError as oException:
+  if oException.args[0] != "No module named 'mSSL'":
+    raise;
+  tcException = (cHTTPException, cTCPIPException);
+else:
+  tcException = (cHTTPException, cTCPIPException, cSSLException);
+
+from mConsole import oConsole;
 
 from mColors import *;
 
@@ -29,9 +39,9 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     ));
     try:
       oResponse = oHTTPClient.fozGetResponseForURL(oURL);
-    except (cHTTPException, cTCPIPException, cSSLException) as oException:
+    except tcExceptions as oException:
       if gbDebug:
-        oConsole.fPrint(*(
+        oConsole.fOutput(*(
           [WARNING, "Requesting ", WARNING_INFO, str(oURL), WARNING] +
           ([" through ", WARNING_INFO, str(oProxyServerURL), WARNING] if oProxyServerURL else []) +
           [" failed: ", WARNING_INFO, str(oException), WARNING, "!"]
@@ -49,7 +59,7 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
       try:
         sFavIconURL = str(oFavIconLinkElementMatch.group(1));
       except:
-        oConsole.fPrint(
+        oConsole.fOutput(
           WARNING, "- ", WARNING_INFO, str(oURL), WARNING,
           " refers to a non-ascii favicon URL: ", WARNING_INFO, repr(oFavIconLinkElementMatch.group(1)), WARNING, "!"
         );
@@ -63,8 +73,8 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     ));
     try:
       oResponse = oHTTPClient.fozGetResponseForURL(oFavIconURL);
-    except (cHTTPException, cTCPIPException, cSSLException) as oException:
-      oConsole.fPrint(*(
+    except tcExceptions as oException:
+      oConsole.fOutput(*(
         [WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING] +
         ([" through ", INFO, str(oProxyServerURL), NORMAL, " "] if oProxyServerURL else []) +
         [": ", WARNING_INFO, str(oException), WARNING, "!"]
@@ -73,16 +83,16 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     assert oResponse is not None, \
         "HTTP Response should not be None!"; # This can only happen if the client is stopping and we control the client and should not have stopped it.
     if oResponse.uStatusCode != 200:
-      oConsole.fPrint(
+      oConsole.fOutput(
         WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, ": the server responded with ",
-        WARNING_INFO, "HTTP ", str(oResponse.uStatusCode), " ", oResponse.sReasonPhrase, WARNING, "!"
+        WARNING_INFO, "HTTP ", str(oResponse.uStatusCode), " ", str(oResponse.sbReasonPhrase, 'latin1'), WARNING, "!"
       );
       return None;
     else:
       if gbDebug:
-        oConsole.fPrint(
+        oConsole.fOutput(
           "* FavIcon URL for ", INFO, str(oURL), NORMAL, ": ", INFO, str(oFavIconURL), NORMAL, "."
         );
       return oFavIconURL;
-  oConsole.fPrint(WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, " through any HTTP client.");
+  oConsole.fOutput(WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, " through any HTTP client.");
   return None;
