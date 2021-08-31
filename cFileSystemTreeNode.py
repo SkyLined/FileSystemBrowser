@@ -73,7 +73,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
       oIconFile = goFolderEmptyIconFile if len(aoChildFileSystemItems) == 0 else goFolderWithContentIconFile;
       oSelf.oIconFile = goUnknownFolderIconFile;
     elif oSelf.oFileSystemItem.fbIsFile(bThrowErrors = bThrowErrors):
-      s0Extension = oSelf.oFileSystemItem.sExtension;
+      s0Extension = oSelf.oFileSystemItem.s0Extension;
       oSelf.oIconFile = goUnknownFileIconFile;
       if not s0Extension:
         # No extension
