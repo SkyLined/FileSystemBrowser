@@ -13,7 +13,7 @@ else:
 
 from mConsole import oConsole;
 
-from mColors import *;
+from mColorsAndChars import *;
 
 grFavIconLinkElement = re.compile(
   r'<link'
@@ -33,19 +33,26 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
     # Load the page and see if there is a <link ... rel="icon" ... href="..."> element in it.
     oProxyServerURL = oHTTPClient.foGetProxyServerURL();
     oConsole.fStatus(*(
-      ["Requesting ", INFO, str(oURL), NORMAL] +
-      ([" through ", INFO, str(oProxyServerURL), NORMAL] if oProxyServerURL else []) +
+      ["Requesting ", COLOR_INFO, str(oURL), COLOR_NORMAL] +
+      ([" through ", COLOR_INFO, str(oProxyServerURL), COLOR_NORMAL] if oProxyServerURL else []) +
       [" to look for favicon..."]
     ));
     try:
       oResponse = oHTTPClient.fozGetResponseForURL(oURL);
     except tcExceptions as oException:
       if gbDebug:
-        oConsole.fOutput(*(
-          [WARNING, "Requesting ", WARNING_INFO, str(oURL), WARNING] +
-          ([" through ", WARNING_INFO, str(oProxyServerURL), WARNING] if oProxyServerURL else []) +
-          [" failed: ", WARNING_INFO, str(oException), WARNING, "!"]
-        ));
+        oConsole.fOutput(
+          COLOR_WARNING, CHAR_WARNING,
+          COLOR_NORMAL, " Requesting ",
+          COLOR_INFO, str(oURL),
+          [
+            COLOR_NORMAL, " through ",
+            COLOR_INFO, str(oProxyServerURL),
+          ] if oProxyServerURL else [],
+          COLOR_NORMAL, " failed: ",
+          COLOR_INFO, str(oException),
+          COLOR_NORMAL, "!",
+        );
       continue; # This HTTP client cannot retreive the page; try the next client.
     assert oResponse is not None, \
         "HTTP Response should not be None!"; # This can only happen if the client is stopping and we control the client and should not have stopped it.
@@ -60,39 +67,69 @@ def foGetFavIconURLForHTTPClientsAndURL(aoHTTPClients, oURL):
         sFavIconURL = str(oFavIconLinkElementMatch.group(1));
       except:
         oConsole.fOutput(
-          WARNING, "- ", WARNING_INFO, str(oURL), WARNING,
-          " refers to a non-ascii favicon URL: ", WARNING_INFO, repr(oFavIconLinkElementMatch.group(1)), WARNING, "!"
+          COLOR_WARNING, CHAR_WARNING,
+          " ",
+          COLOR_INFO, str(oURL),
+          COLOR_NORMAL, " refers to a non-ascii favicon URL: ",
+          COLOR_INFO, repr(oFavIconLinkElementMatch.group(1)),
+          COLOR_WARNING, "!",
         );
       else:
         oFavIconURL = oURL.foFromRelativeString(sFavIconURL);
     # See if there is a "/favicon.ico" on the server.
-    oConsole.fStatus(*(
-      ["Requesting ", INFO, str(oFavIconURL), NORMAL] +
-      ([" through ", INFO, str(oProxyServerURL), NORMAL] if oProxyServerURL else []) +
-      [" to check favicon..."]
-    ));
+    oConsole.fStatus(
+      COLOR_BUSY, CHAR_BUSY, 
+      COLOR_NORMAL, " Requesting ",
+      COLOR_INFO, str(oFavIconURL),
+      [
+        COLOR_NORMAL, " through ",
+        COLOR_INFO, str(oProxyServerURL),
+      ] if oProxyServerURL else [],
+      COLOR_NORMAL, " to check favicon...",
+    );
     try:
       oResponse = oHTTPClient.fozGetResponseForURL(oFavIconURL);
     except tcExceptions as oException:
-      oConsole.fOutput(*(
-        [WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING] +
-        ([" through ", INFO, str(oProxyServerURL), NORMAL, " "] if oProxyServerURL else []) +
-        [": ", WARNING_INFO, str(oException), WARNING, "!"]
-      ));
+      oConsole.fOutput(
+        COLOR_WARNING, CHAR_WARNING,
+        COLOR_NORMAL, " Cannot retrieve ",
+        COLOR_INFO, str(oURL),
+        [
+          COLOR_NORMAL, " through ",
+          COLOR_INFO, str(oProxyServerURL),
+        ] if oProxyServerURL else [],
+        COLOR_NORMAL, ": ",
+        COLOR_INFO, str(oException),
+        COLOR_NORMAL, "!",
+      );
       return None;
     assert oResponse is not None, \
         "HTTP Response should not be None!"; # This can only happen if the client is stopping and we control the client and should not have stopped it.
     if oResponse.uStatusCode != 200:
       oConsole.fOutput(
-        WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, ": the server responded with ",
-        WARNING_INFO, "HTTP ", str(oResponse.uStatusCode), " ", str(oResponse.sbReasonPhrase, 'latin1'), WARNING, "!"
+        COLOR_WARNING, CHAR_WARNING,
+        COLOR_NORMAL, " Cannot retrieve ",
+        COLOR_INFO, str(oURL),
+        COLOR_NORMAL, ": the server responded with ",
+        COLOR_INFO, "HTTP ", str(oResponse.uStatusCode), " ", str(oResponse.sbReasonPhrase, 'latin1'),
+        COLOR_NORMAL, "!"
       );
       return None;
     else:
       if gbDebug:
         oConsole.fOutput(
-          "* FavIcon URL for ", INFO, str(oURL), NORMAL, ": ", INFO, str(oFavIconURL), NORMAL, "."
+          COLOR_INFO, CHAR_INFO,
+          COLOR_NORMAL, " FavIcon URL for ",
+          COLOR_INFO, str(oURL),
+          COLOR_NORMAL, ": ",
+          COLOR_INFO, str(oFavIconURL),
+          COLOR_NORMAL, ".",
         );
       return oFavIconURL;
-  oConsole.fOutput(WARNING, "- Cannot retrieve ", WARNING_INFO, str(oURL), WARNING, " through any HTTP client.");
+  oConsole.fOutput(
+    COLOR_WARNING, CHAR_WARNING,
+    COLOR_NORMAL, " Cannot retrieve ",
+    COLOR_INFO, str(oURL),
+    COLOR_NORMAL, " through any HTTP client.",
+  );
   return None;

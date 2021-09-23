@@ -10,7 +10,7 @@ from foGetFavIconURLForHTTPClientsAndURL import foGetFavIconURLForHTTPClientsAnd
 from foGetLinkFileTargetFileSystemItem import foGetLinkFileTargetFileSystemItem;
 from fo0GetLinkFileTargetURL import fo0GetLinkFileTargetURL;
 from fs0GetLinkFileTarget import fs0GetLinkFileTarget;
-from mColors import *;
+from mColorsAndChars import *;
 from mIcons import *;
 
 gdsTextNodeType_by_sFileExtension = {
@@ -92,7 +92,12 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
       elif s0Extension.lower() == "lnk":
         oLNKFileTarget = foGetLinkFileTargetFileSystemItem(oSelf.oFileSystemItem);
         if oLNKFileTarget is None:
-          oConsole.fOutput(ERROR, "- Link file: ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, " is broken!");
+          oConsole.fOutput(
+            COLOR_ERROR, CHAR_ERROR,
+            COLOR_NORMAL, " Link file: ",
+            COLOR_INFO, oSelf.oFileSystemItem.sPath,
+            COLOR_NORMAL, " is broken!",
+          );
           oSelf.sToolTip = "Link file is broken.";
           oIconFile = goBrokenLinkIconFile;
           aoChildFileSystemItems = None;
@@ -105,11 +110,20 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(oLNKFileTarget, bThrowErrors = False);
           bLinkIsValid = sRelativeTargetPath and oLNKFileTarget.fbExists();
           if not bLinkIsValid:
-            oConsole.fOutput(WARNING, "- Link file ", WARNING_INFO, oSelf.oFileSystemItem.sPath, WARNING, " links to ",
-              "a file or folder outside of the visible tree" if sRelativeTargetPath is None
-              else "a missing file or folder",
-              " (", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ")!");
-            oConsole.fStatus("* Attempting to fix link ...");
+            oConsole.fOutput(
+              COLOR_WARNING, CHAR_WARNING,
+              COLOR_NORMAL, " Link file ",
+              COLOR_INFO, oSelf.oFileSystemItem.sPath,
+              COLOR_NORMAL,
+              " links to a file or folder outside of the visible tree" if sRelativeTargetPath is None else "a missing file or folder",
+              " (",
+              COLOR_INFO, oLNKFileTarget.sPath,
+              COLOR_NORMAL, ")!",
+            );
+            oConsole.fStatus(
+              COLOR_BUSY, CHAR_BUSY,
+              COLOR_NORMAL, " Attempting to fix link ...",
+            );
             # The target could have been moved, so try to figure out what it should be.
             sPotentialRelativeTargetPath = oLNKFileTarget.sName;
             oPotentialTargetOriginalParent = oLNKFileTarget.oParent;
@@ -120,14 +134,30 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
                 oLNKFileTarget = oPotentialTarget;
                 bLinkIsValid = True;
                 if not fbSetLNKFileTarget(oSelf.oFileSystemItem, oLNKFileTarget):
-                  oConsole.fOutput(ERROR, "  Cannot redirect the link to ", ERROR_INFO, oLNKFileTarget.sPath, ERROR, ".");
+                  oConsole.fOutput(
+                    "  ",
+                    COLOR_ERROR, CHAR_ERROR,
+                    COLOR_NORMAL, " Cannot redirect the link to ",
+                    COLOR_INFO, oLNKFileTarget.sPath,
+                    COLOR_NORMAL, ".",
+                  );
                 else:
-                  oConsole.fOutput(WARNING, "  The link has been redirected to ", WARNING_INFO, oLNKFileTarget.sPath, WARNING, ".");
+                  oConsole.fOutput(
+                    "  ",
+                    COLOR_WARNING, CHAR_WARNING,
+                    COLOR_NORMAL, " The link has been redirected to ",
+                    COLOR_INFO, oLNKFileTarget.sPath,
+                    COLOR_NORMAL, ".",
+                  );
                 break;
               sPotentialRelativeTargetPath = oPotentialTargetOriginalParent.sName + os.sep + sPotentialRelativeTargetPath;
               oPotentialTargetOriginalParent = oPotentialTargetOriginalParent.oParent;
             else:
-              oConsole.fOutput(ERROR, "  The link cannot be fixed!");
+              oConsole.fOutput(
+                "  ",
+                COLOR_ERROR, CHAR_ERROR,
+                COLOR_NORMAL, " The link cannot be fixed!",
+              );
           if not bLinkIsValid:
             oSelf.sToolTip = (
               "Link target is outside of visible tree." if sRelativeTargetPath is None
@@ -212,8 +242,16 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
                 try:
                   bytes(sFileData, "utf-8");
                 except UnicodeError as oException:
-                  oConsole.fOutput(ERROR, "- Text encoding problem in ", ERROR_INFO, oSelf.oFileSystemItem.sPath, ERROR, "!");
-                  oConsole.fOutput(ERROR_INFO, "  ", str(oException));
+                  oConsole.fOutput(
+                    COLOR_ERROR, CHAR_ERROR,
+                    COLOR_NORMAL, " Text encoding problem in ",
+                    COLOR_INFO, oSelf.oFileSystemItem.sPath,
+                    COLOR_NORMAL, "!",
+                  );
+                  oConsole.fOutput(
+                    "  ",
+                    COLOR_INFO, str(oException),
+                  );
                   raise;
         if s0TextNodeType:
           oSelf.sType = s0TextNodeType;
