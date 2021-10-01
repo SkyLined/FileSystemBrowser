@@ -5,21 +5,18 @@ from mWindowsAPI import fsGetPythonISA, oSystemInfo;
 from mConsole import oConsole;
 
 from faxListOutput import faxListOutput;
-from mColors import *;
+from mColorsAndChars import *;
 
 try:
-  from fPrintLogo import fPrintLogo as f0PrintLogo;
+  from fOutputLogo import fOutputLogo as f0OutputLogo;
 except ModuleNotFoundError as oException:
-  if oException.args[0] != "No module named 'fPrintLogo'":
+  if oException.args[0] != "No module named 'fOutputLogo'":
     raise;
-  f0PrintLogo = None;
+  f0OutputLogo = None;
 
-OK_CHAR = "\u221A";
-WARNING_CHAR = "\u25B2";
-ERROR_CHAR = "\xd7";
-BULLET_CHAR = "\u2022";
+CHAR_LIST = "\u2022";
 
-def fPrintLicenseInformation(bUpdateIfNeeded = False):
+def fOutputLicenseInformation(bUpdateIfNeeded = False):
   # Read product details for rs and all modules it uses.
   aoProductDetails = mProductDetails.faoGetProductDetailsForAllLoadedModules();
   o0MainProductDetails = mProductDetails.fo0GetProductDetailsForMainModule();
@@ -55,12 +52,16 @@ def fPrintLicenseInformation(bUpdateIfNeeded = False):
         sServerURL = str(o0MainProductDetails.sb0LicenseServerURL, "ascii", "strict");
         if sLicenseServerError:
           oConsole.fOutput(
-            ERROR, ERROR_CHAR, " License check for ", ERROR_INFO, oLicense.sLicenseId,
-            ERROR, " on server ", ERROR_INFO, sServerURL,
-            ERROR, " failed:",
+            COLOR_ERROR, CHAR_ERROR,
+            COLOR_NORMAL, " License check for ",
+            COLOR_INFO, oLicense.sLicenseId,
+            COLOR_NORMAL, " on server ",
+            COLOR_INFO, sServerURL,
+            COLOR_NORMAL, " failed:",
           );
           oConsole.fOutput(
-            ERROR, "  ", ERROR_INFO, sLicenseServerError,
+            "  ",
+            COLOR_INFO, sLicenseServerError,
           );
         uCheckedLicenseCounter += 1;
         if oLicense.bMayNeedToBeUpdated and bUpdateIfNeeded:
@@ -70,10 +71,10 @@ def fPrintLicenseInformation(bUpdateIfNeeded = False):
           );
           oUpdatedLicense = oLicenseServer.foDownloadUpdatedLicense(oLicense);
           oConsole.fOutput(
-            OK, OK_CHAR, NORMAL, " Downloaded updated license ",
-            INFO, oLicense.sLicenseId, NORMAL, " from server ",
-            INFO, str(oLicenseServer.sbServerURL, "ascii", "strict"),
-            NORMAL, ".",
+            COLOR_OK, CHAR_OK, COLOR_NORMAL, " Downloaded updated license ",
+            COLOR_INFO, oLicense.sLicenseId, COLOR_NORMAL, " from server ",
+            COLOR_INFO, str(oLicenseServer.sbServerURL, "ascii", "strict"),
+            COLOR_NORMAL, ".",
           );
           aoUpdatedLicenses.append(oUpdatedLicense);
       if len(aoUpdatedLicenses) > 0:
@@ -87,71 +88,109 @@ def fPrintLicenseInformation(bUpdateIfNeeded = False):
           ];
           mProductDetails.fWriteLicensesToProductFolder(aoUpdatedLicensesForThisProduct, oProductDetails);
           oConsole.fOutput(
-            OK, OK_CHAR, NORMAL, " Saved ",
-            INFO, str(len(aoUpdatedLicensesForThisProduct)), NORMAL, " updated license", "" if len(aoUpdatedLicensesForThisProduct) == 1 else "s",
-            " for product ", INFO, oProductDetails.sProductName, NORMAL, " in folder ",
-            INFO, oProductDetails.sInstallationFolderPath, NORMAL, ".",
+            COLOR_OK, CHAR_OK,
+            COLOR_NORMAL, " Saved ",
+            COLOR_INFO, str(len(aoUpdatedLicensesForThisProduct)),
+            COLOR_NORMAL, " updated license", "" if len(aoUpdatedLicensesForThisProduct) == 1 else "s", " for product ",
+            COLOR_INFO, oProductDetails.sProductName,
+            COLOR_NORMAL, " in folder ",
+            COLOR_INFO, oProductDetails.sInstallationFolderPath,
+            COLOR_NORMAL, ".",
           );
     
-    if f0PrintLogo:
-      f0PrintLogo();
+    if f0OutputLogo:
+      f0OutputLogo();
     
     oConsole.fOutput(
-      "\u250C\u2500 ", HILITE, "License information", NORMAL, " ", sPadding = "\u2500",
-      );
+      "┌───[", COLOR_HILITE, " License information ", COLOR_NORMAL, "]", sPadding = "─",
+    );
     if aoLicenses:
       oConsole.fOutput(
-        NORMAL, "\u2502 ", OK, OK_CHAR, NORMAL, " This system will use id ", INFO, mProductDetails.fsGetSystemId(), NORMAL, " with the license server.",
+        "│ ",
+        COLOR_OK, CHAR_OK,
+        COLOR_NORMAL, " This system uses system id ",
+        COLOR_INFO, mProductDetails.fsGetSystemId(),
+        COLOR_NORMAL, " with the license server.",
       );
       oConsole.fOutput(
-        "\u250C", sPadding = "\u2500",
+        "├", sPadding = "─",
       );
     for oLicense in aoLicenses:
       oConsole.fOutput(
-        "\u2502 ", OK, OK_CHAR, NORMAL, " License ", INFO, oLicense.sLicenseId,
-        NORMAL, " covers ", INFO, oLicense.sUsageTypeDescription, 
-        NORMAL, " by ", INFO, oLicense.sLicenseeName,
-        NORMAL, " of ", INFO, oLicense.asProductNames[0],
-        NORMAL, " on ", INFO, str(oLicense.uLicensedInstances), NORMAL, " machine", "s" if oLicense.uLicensedInstances != 1 else "",
-        NORMAL, ".",
+        "│ ",
+        COLOR_OK, CHAR_OK,
+        COLOR_NORMAL, " License ",
+        COLOR_INFO, oLicense.sLicenseId,
+        COLOR_NORMAL, " covers ",
+        COLOR_INFO, oLicense.sUsageTypeDescription, 
+        COLOR_NORMAL, " by ",
+        COLOR_INFO, oLicense.sLicenseeName,
+        COLOR_NORMAL, " of ",
+        COLOR_INFO, oLicense.asProductNames[0],
+        COLOR_NORMAL, " on ",
+        COLOR_INFO, str(oLicense.uLicensedInstances),
+        COLOR_NORMAL, " machine", "s" if oLicense.uLicensedInstances != 1 else "", ".",
       );
-      oConsole.fOutput("\u2502   Covered products: ", faxListOutput(oLicense.asProductNames, "and", oLicense.asProductNames, INFO, NORMAL, NORMAL), NORMAL, ".");
-      oConsole.fOutput("\u2502   License source: ", INFO, oLicense.sLicenseSource, NORMAL, ".");
+      oConsole.fOutput(
+        "│   Covered products: ",
+        faxListOutput(oLicense.asProductNames, "and", oLicense.asProductNames, COLOR_INFO, COLOR_NORMAL, COLOR_NORMAL),
+        COLOR_NORMAL, ".",
+      );
+      oConsole.fOutput(
+        "│   License source: ",
+        COLOR_INFO, oLicense.sLicenseSource,
+        COLOR_NORMAL, ".",
+      );
     if asProductNamesInTrial:
       oConsole.fOutput(
-        "\u2502 ", WARNING, WARNING_CHAR, " A ",
-        WARNING_INFO, "trial period",
-        WARNING, " is active for the following product", "s" if len(asProductNamesInTrial) > 1 else "", ":",
+        "│ ",
+        COLOR_WARNING, CHAR_WARNING,
+        COLOR_NORMAL, " A ",
+        COLOR_INFO, "trial period",
+        COLOR_NORMAL, " is active for the following product", "s" if len(asProductNamesInTrial) > 1 else "", ":",
       );
-      oConsole.fOutput("\u2502   ", faxListOutput(asProductNamesInTrial, "and", asProductNamesInTrial, WARNING_INFO, WARNING, NORMAL));
+      oConsole.fOutput(
+        "│   ",
+        faxListOutput(asProductNamesInTrial, "and", asProductNamesInTrial, COLOR_INFO, COLOR_NORMAL, COLOR_NORMAL),
+        COLOR_NORMAL, ".",
+      );
     if asProductNamesWithoutLicenseRequirement:
       oConsole.fOutput(
-        "\u2502 ", OK_CHAR, " ",
-        INFO, "No license",
-        NORMAL, " is required to use the following product", "s" if len(asProductNamesWithoutLicenseRequirement) > 1 else "", ":",
+        "│ ",
+        COLOR_OK, CHAR_OK, " ",
+        COLOR_INFO, "No license",
+        COLOR_NORMAL, " is required to use the following product", "s" if len(asProductNamesWithoutLicenseRequirement) > 1 else "", ":",
       );
-      oConsole.fOutput("\u2502   ", faxListOutput(asProductNamesWithoutLicenseRequirement, "and", [], INFO, NORMAL, NORMAL));
+      oConsole.fOutput(
+        "│   ",
+        faxListOutput(asProductNamesWithoutLicenseRequirement, "and", [], COLOR_INFO, COLOR_NORMAL, COLOR_NORMAL),
+        COLOR_NORMAL, ".",
+      );
     if asUnlicensedProductNames:
       oConsole.fOutput(
-        "\u2502 ", ERROR, ERROR_CHAR, " ",
-        ERROR_INFO, "No valid license",
-        ERROR, " was found and ",
-        ERROR_INFO, "the trial period has been exceeded",
-        ERROR, " for the following product", "s" if len(asUnlicensedProductNames) > 1 else "", ":",
+        "│ ",
+        COLOR_ERROR, CHAR_ERROR,
+        COLOR_NORMAL, " ",
+        COLOR_INFO, "No valid license",
+        COLOR_NORMAL, " was found and ",
+        COLOR_INFO, "the trial period has been exceeded",
+        COLOR_NORMAL, " for the following product", "s" if len(asUnlicensedProductNames) > 1 else "", ":",
       );
-      oConsole.fOutput("\u2502   ", faxListOutput(asUnlicensedProductNames, "and", asUnlicensedProductNames, ERROR_INFO, ERROR, ERROR));
+      oConsole.fOutput(
+        "│   ",
+        faxListOutput(asUnlicensedProductNames, "and", asUnlicensedProductNames, COLOR_INFO, COLOR_NORMAL, COLOR_NORMAL),
+        COLOR_NORMAL, ".",
+      );
     
     (asLicenseErrors, asLicenseWarnings) = mProductDetails.ftasGetLicenseErrorsAndWarnings();
     if asLicenseErrors:
-      oConsole.fOutput(ERROR, "\u251C\u2500", ERROR_INFO, " Software license error ", ERROR, sPadding = "\u2500");
+      oConsole.fOutput("├───[", COLOR_ERROR, " Software license error ", COLOR_NORMAL, "]", sPadding = "─");
       for sLicenseError in asLicenseErrors:
-        oConsole.fOutput(ERROR, "\u2502 ", ERROR, ERROR_CHAR, " ", ERROR_INFO, sLicenseError);
+        oConsole.fOutput("│ ", COLOR_ERROR, CHAR_ERROR, COLOR_INFO, " ", sLicenseError);
     if asLicenseWarnings:
-      oConsole.fOutput(WARNING, "\u251C\u2500", WARNING_INFO, " Software license warning ", WARNING, sPadding = "\u2500");
+      oConsole.fOutput("├───[", COLOR_WARNING, " Software license warning ", COLOR_NORMAL, "]", sPadding = "─");
       for sLicenseWarning in asLicenseWarnings:
-        oConsole.fOutput(WARNING, "\u2502 ", WARNING, WARNING_CHAR, " ", WARNING_INFO, sLicenseWarning);
-    oConsole.fOutput(
-      "\u2514", sPadding = "\u2500",
-    );
+        oConsole.fOutput("│ ", COLOR_WARNING, CHAR_WARNING, COLOR_INFO, " ", sLicenseWarning);
+    oConsole.fOutput("└", sPadding = "─");
   finally:
     oConsole.fUnlock();
