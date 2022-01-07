@@ -231,7 +231,10 @@ try:
                 COLOR_INFO, sRelativePath,
                 COLOR_NORMAL, " (new file)",
               );
-            if not o0OfflineFile or not o0OfflineFile.fbCreateAsFile(sb0Data, bCreateParents = True, bParseZipFiles = False, bThrowErrors = False):
+            if (
+              not o0OfflineFile
+              or not o0OfflineFile.fbCreateAsFile(sb0Data, bCreateParents = True, bParseZipFiles = False)
+            ):
               oConsole.fOutput(
                 COLOR_ERROR, CHAR_ERROR,
                 COLOR_NORMAL, " Cannot write ",
