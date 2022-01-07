@@ -69,7 +69,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
     # keep it open until we are done to cache its content.
     fProgressCallback(oSelf);
     if oSelf.oFileSystemItem.fbIsFolder(bThrowErrors = bThrowErrors):
-      aoChildFileSystemItems = oSelf.oFileSystemItem.faoGetChildren(bThrowErrors = bThrowErrors) or [];
+      aoChildFileSystemItems = oSelf.oFileSystemItem.fa0oGetChildren(bThrowErrors = bThrowErrors) or [];
       oIconFile = goFolderEmptyIconFile if len(aoChildFileSystemItems) == 0 else goFolderWithContentIconFile;
       oSelf.oIconFile = goUnknownFolderIconFile;
     elif oSelf.oFileSystemItem.fbIsFile(bThrowErrors = bThrowErrors):
@@ -84,7 +84,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           # Let's keep this zip file open while we are done.
           oIconFile = goValidZipFileIconFile;
           oSelf.oIconFile = goUnknownFolderIconFile;
-          aoChildFileSystemItems = oSelf.oFileSystemItem.faoGetChildren(bThrowErrors = bThrowErrors) or [];
+          aoChildFileSystemItems = oSelf.oFileSystemItem.fa0oGetChildren(bThrowErrors = bThrowErrors) or [];
         else:
           # .zip extension but not a valid zip file (or it would have been handles in the code above).
           oIconFile = goBadZipFileIconFile;
@@ -128,10 +128,10 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             sPotentialRelativeTargetPath = oLNKFileTarget.sName;
             oPotentialTargetOriginalParent = oLNKFileTarget.oParent;
             while oPotentialTargetOriginalParent:
-              oPotentialTarget = oSelf.oRootFileSystemItem.foGetDescendant(sPotentialRelativeTargetPath, bParseZipFiles = False);
-              if oPotentialTarget.fbExists():
+              o0PotentialTarget = oSelf.oRootFileSystemItem.fo0GetDescendant(sPotentialRelativeTargetPath, bParseZipFiles = False, bThrowErrors = False);
+              if o0PotentialTarget and o0PotentialTarget.fbExists():
                 sRelativeTargetPath = sPotentialRelativeTargetPath;
-                oLNKFileTarget = oPotentialTarget;
+                oLNKFileTarget = o0PotentialTarget;
                 bLinkIsValid = True;
                 if not fbSetLNKFileTarget(oSelf.oFileSystemItem, oLNKFileTarget):
                   oConsole.fOutput(

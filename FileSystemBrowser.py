@@ -151,7 +151,8 @@ try:
         doExistingOfflineFileOrFolder_by_sRelativePath = {};
         if oOfflineFolder.fbIsFolder(bThrowErrors = bDebug):
           oConsole.fStatus(COLOR_BUSY, CHAR_BUSY, COLOR_NORMAL, " Reading existing offline files in ", COLOR_INFO, oOfflineFolder.sPath, COLOR_NORMAL, "...");
-          for oDescendant in oOfflineFolder.faoGetDescendants(bThrowErrors = bDebug, bParseZipFiles = False):
+          aoDescendants = oOfflineFolder.fa0oGetDescendants(bThrowErrors = bDebug, bParseZipFiles = False) or [];
+          for oDescendant in aoDescendants:
             sRelativePath = oOfflineFolder.fsGetRelativePathTo(oDescendant.sPath, bThrowErrors = bDebug);
             doExistingOfflineFileOrFolder_by_sRelativePath[sRelativePath] = oDescendant;
           oConsole.fStatus(COLOR_BUSY, CHAR_BUSY, COLOR_NORMAL, " Updating offline files in ", COLOR_INFO, oOfflineFolder.sPath, COLOR_NORMAL, "...");
@@ -221,19 +222,22 @@ try:
           else:
             assert sb0Data is not None, \
                 "File or folder %s does not exist but there is also no data for it!?" % sRelativePath;
-            oOfflineFile = oOfflineFolder.foGetDescendant(sRelativePath, bThrowErrors = bDebug);
-            fConsoleOutputOrStatus("  ", COLOR_ADD, CHAR_ADD, COLOR_NORMAL, " Saving ", COLOR_INFO, sRelativePath, COLOR_NORMAL, " (new file)");
-            try:
-              oOfflineFile.fbCreateAsFile(sb0Data, bCreateParents = True, bParseZipFiles = False, bThrowErrors = True);
-            except Exception as oException:
+            o0OfflineFile = oOfflineFolder.fo0GetDescendant(sRelativePath, bThrowErrors = bDebug);
+            if o0OfflineFile:
+              fConsoleOutputOrStatus(
+                "  ",
+                COLOR_ADD, CHAR_ADD,
+                COLOR_NORMAL, " Saving ",
+                COLOR_INFO, sRelativePath,
+                COLOR_NORMAL, " (new file)",
+              );
+            if not o0OfflineFile or not o0OfflineFile.fbCreateAsFile(sb0Data, bCreateParents = True, bParseZipFiles = False, bThrowErrors = False):
               oConsole.fOutput(
                 COLOR_ERROR, CHAR_ERROR,
                 COLOR_NORMAL, " Cannot write ",
                 COLOR_INFO, str(len(sb0Data)),
                 COLOR_NORMAL, " bytes to ",
                 COLOR_INFO, oOfflineFile.sPath,
-                COLOR_NORMAL, ":",
-                COLOR_INFO, repr(oException),
                 COLOR_NORMAL, "!",
               );
               sys.exit(guExitCodeCannotWriteToFileSystem);
