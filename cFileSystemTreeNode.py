@@ -208,7 +208,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
         if s0TextNodeType:
           # This is not just a random file, it has a special meaning.
           # Read the file data.
-          sb0FileData = oSelf.oFileSystemItem.fsbRead(bThrowErrors = bThrowErrors);
+          sb0FileData = oSelf.oFileSystemItem.fsb0Read(bThrowErrors = bThrowErrors);
           if sb0FileData is not None:
             sbFileData = sb0FileData;
             if b"\0" in sbFileData:

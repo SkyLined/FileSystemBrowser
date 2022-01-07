@@ -167,7 +167,7 @@ try:
           xOfflineFileOrData = dxOfflineFileOrData_by_sRelativePath.get(sRelativePath);
           fAssertType("xOfflineFileOrData for sRelativePath %s" % repr(sRelativePath), xOfflineFileOrData, cFileSystemItem, str);
           if isinstance(xOfflineFileOrData, cFileSystemItem):
-            sb0Data = xOfflineFileOrData.fsbRead(bThrowErrors = bDebug);
+            sb0Data = xOfflineFileOrData.fsb0Read(bThrowErrors = bDebug);
           else:
             sb0Data = bytes(ord(sByte) for sByte in xOfflineFileOrData);
           oExistingOfflineFileOrFolder = doExistingOfflineFileOrFolder_by_sRelativePath.get(sRelativePath);
@@ -200,7 +200,7 @@ try:
                 if not oExistingOfflineFileOrFolder.fbDelete(bThrowErrors = bDebug):
                   oConsole.fOutput(COLOR_ERROR, CHAR_ERROR, COLOR_NORMAL, " Cannot delete file ", COLOR_INFO, oExistingOfflineFileOrFolder.sPath, COLOR_NORMAL, "!");
                   sys.exit(guExitCodeCannotWriteToFileSystem);
-            elif oExistingOfflineFileOrFolder.fsbRead(bThrowErrors = bDebug) == sb0Data:
+            elif oExistingOfflineFileOrFolder.fs0bRead(bThrowErrors = bDebug) == sb0Data:
               if bDebug:
                 fConsoleOutputOrStatus("  ", CHAR_LIST, " Keeping ", COLOR_INFO, sRelativePath, COLOR_NORMAL, " (file was not modified)");
             else:
