@@ -1,7 +1,7 @@
 import re;
 
 from mHTTPConnection.mExceptions import cHTTPException;
-from mTCPIPConnection.mExceptions import cTCPIPException, cSSLException;
+from mTCPIPConnection.mExceptions import cTCPIPException;
 try: # mSSL support is optional
   from mSSL.mExceptions import cSSLException;
 except ModuleNotFoundError as oException:
