@@ -1,6 +1,6 @@
 from mFileSystemItem import cFileSystemItem;
 
-goIconsFolder = cFileSystemItem(__file__).oParent.foGetChild("icons").foMustBeFolder();
+goIconsFolder = cFileSystemItem(__file__).o0Parent.foGetChild("icons").foMustBeFolder();
 goAudioFileIconFile = goIconsFolder.foGetChild("file-audio.png").foMustBeFile();
 goBadZipFileIconFile = goIconsFolder.foGetChild("file-zip-bad.png").foMustBeFile();
 goBinaryFileIconFile = goIconsFolder.foGetChild("file-binary.png").foMustBeFile();

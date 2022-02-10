@@ -126,8 +126,8 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             );
             # The target could have been moved, so try to figure out what it should be.
             sPotentialRelativeTargetPath = oLNKFileTarget.sName;
-            oPotentialTargetOriginalParent = oLNKFileTarget.oParent;
-            while oPotentialTargetOriginalParent:
+            o0PotentialTargetOriginalParent = oLNKFileTarget.o0Parent;
+            while o0PotentialTargetOriginalParent:
               o0PotentialTarget = oSelf.oRootFileSystemItem.fo0GetDescendant(sPotentialRelativeTargetPath, bParseZipFiles = False, bThrowErrors = False);
               if o0PotentialTarget and o0PotentialTarget.fbExists():
                 sRelativeTargetPath = sPotentialRelativeTargetPath;
@@ -150,8 +150,8 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
                     COLOR_NORMAL, ".",
                   );
                 break;
-              sPotentialRelativeTargetPath = oPotentialTargetOriginalParent.sName + os.sep + sPotentialRelativeTargetPath;
-              oPotentialTargetOriginalParent = oPotentialTargetOriginalParent.oParent;
+              sPotentialRelativeTargetPath = o0PotentialTargetOriginalParent.sName + os.sep + sPotentialRelativeTargetPath;
+              o0PotentialTargetOriginalParent = o0PotentialTargetOriginalParent.o0Parent;
             else:
               oConsole.fOutput(
                 "  ",
