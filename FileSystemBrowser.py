@@ -151,7 +151,7 @@ try:
         doExistingOfflineFileOrFolder_by_sRelativePath = {};
         if oOfflineFolder.fbIsFolder(bThrowErrors = bDebug):
           oConsole.fStatus(COLOR_BUSY, CHAR_BUSY, COLOR_NORMAL, " Reading existing offline files in ", COLOR_INFO, oOfflineFolder.sPath, COLOR_NORMAL, "...");
-          aoDescendants = oOfflineFolder.fa0oGetDescendants(bThrowErrors = bDebug, bParseZipFiles = False) or [];
+          aoDescendants = oOfflineFolder.fa0oGetDescendants(bThrowErrors = bDebug) or [];
           for oDescendant in aoDescendants:
             sRelativePath = oOfflineFolder.fsGetRelativePathTo(oDescendant.sPath, bThrowErrors = bDebug);
             doExistingOfflineFileOrFolder_by_sRelativePath[sRelativePath] = oDescendant;
@@ -233,7 +233,7 @@ try:
               );
             if (
               not o0OfflineFile
-              or not o0OfflineFile.fbCreateAsFile(sb0Data, bCreateParents = True, bParseZipFiles = False)
+              or not o0OfflineFile.fbCreateAsFile(sb0Data, bCreateParents = True)
             ):
               oConsole.fOutput(
                 COLOR_ERROR, CHAR_ERROR,

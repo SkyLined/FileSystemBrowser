@@ -128,7 +128,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             sPotentialRelativeTargetPath = oLNKFileTarget.sName;
             o0PotentialTargetOriginalParent = oLNKFileTarget.o0Parent;
             while o0PotentialTargetOriginalParent:
-              o0PotentialTarget = oSelf.oRootFileSystemItem.fo0GetDescendant(sPotentialRelativeTargetPath, bParseZipFiles = False, bThrowErrors = False);
+              o0PotentialTarget = oSelf.oRootFileSystemItem.fo0GetDescendant(sPotentialRelativeTargetPath, bThrowErrors = False);
               if o0PotentialTarget and o0PotentialTarget.fbExists():
                 sRelativeTargetPath = sPotentialRelativeTargetPath;
                 oLNKFileTarget = o0PotentialTarget;
