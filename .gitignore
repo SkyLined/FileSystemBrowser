@@ -7,6 +7,6 @@
 *.VC.opendb
 *.vs
 Internal error reports/*
-releases/
+releases
 Tests/tmp/
 Tests/Reports/
