@@ -22,7 +22,7 @@ gsPowershellScriptTemplateToExtractTargetFromLinkFile = (
   ");"
 );
 
-def fs0GetLinkFileTarget(oLinkFile):
+def fs0GetLNKFileTarget(oLinkFile):
   # This should work for .LNK and .URL files.
   sEncodedLinkPath = '"%s"' % str(base64.b64encode(oLinkFile.sPath.encode("utf-8")), "ascii", "strict");
   sPowershellScript = gsPowershellScriptTemplateToExtractTargetFromLinkFile % sEncodedLinkPath;

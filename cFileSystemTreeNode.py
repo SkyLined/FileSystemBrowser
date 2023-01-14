@@ -6,13 +6,12 @@ from foConsoleLoader import foConsoleLoader;
 oConsole = foConsoleLoader();
 
 from cMailToURL import cMailToURL;
-from fbSetLNKFileTarget import fbSetLNKFileTarget;
 from foGetFavIconURLForHTTPClientsAndURL import foGetFavIconURLForHTTPClientsAndURL;
-from foGetLinkFileTargetFileSystemItem import foGetLinkFileTargetFileSystemItem;
-from fo0GetLinkFileTargetURL import fo0GetLinkFileTargetURL;
-from fs0GetLinkFileTarget import fs0GetLinkFileTarget;
 from mColorsAndChars import *;
 from mIcons import *;
+from fbSetLNKFileTarget import fbSetLNKFileTarget;
+from fo0GetLNKFileTargetURL import fo0GetLNKFileTargetURL;
+from fo0GetLNKFileTargetFileSystemItem import fo0GetLNKFileTargetFileSystemItem;
 
 gdsTextNodeType_by_sFileExtension = {
   "c":    "text",
@@ -91,8 +90,8 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           oIconFile = goBadZipFileIconFile;
           aoChildFileSystemItems = None;
       elif s0Extension.lower() == "lnk":
-        oLNKFileTarget = foGetLinkFileTargetFileSystemItem(oSelf.oFileSystemItem);
-        if oLNKFileTarget is None:
+        o0LNKFileTarget = fo0GetLNKFileTargetFileSystemItem(oSelf.oFileSystemItem);
+        if o0LNKFileTarget is None:
           oConsole.fOutput(
             COLOR_ERROR, CHAR_ERROR,
             COLOR_NORMAL, " Link file: ",
@@ -102,14 +101,14 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
           oSelf.sToolTip = "Link file is broken.";
           oIconFile = goBrokenLinkIconFile;
           aoChildFileSystemItems = None;
-        elif oLNKFileTarget.sPath.startswith("\\"):
-          oSelf.fLinkToURL("file:%s" % oLNKFileTarget.sPath.replace("\\", "/"));
-          oSelf.sToolTip = oLNKFileTarget.sPath;
+        elif o0LNKFileTarget.sPath.startswith("\\"):
+          oSelf.fLinkToURL("file:%s" % o0LNKFileTarget.sPath.replace("\\", "/"));
+          oSelf.sToolTip = o0LNKFileTarget.sPath;
           oIconFile = goBrokenLinkIconFile;
           aoChildFileSystemItems = None;
         else:
-          sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(oLNKFileTarget, bThrowErrors = False);
-          bLinkIsValid = sRelativeTargetPath and oLNKFileTarget.fbExists();
+          sRelativeTargetPath = oSelf.oRootFileSystemItem.fsGetRelativePathTo(o0LNKFileTarget, bThrowErrors = False);
+          bLinkIsValid = sRelativeTargetPath and o0LNKFileTarget.fbExists();
           if not bLinkIsValid:
             oConsole.fOutput(
               COLOR_WARNING, CHAR_WARNING,
@@ -118,7 +117,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
               COLOR_NORMAL,
               " links to a file or folder outside of the visible tree" if sRelativeTargetPath is None else "a missing file or folder",
               " (",
-              COLOR_INFO, oLNKFileTarget.sPath,
+              COLOR_INFO, o0LNKFileTarget.sPath,
               COLOR_NORMAL, ")!",
             );
             oConsole.fStatus(
@@ -126,20 +125,20 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
               COLOR_NORMAL, " Attempting to fix link ...",
             );
             # The target could have been moved, so try to figure out what it should be.
-            sPotentialRelativeTargetPath = oLNKFileTarget.sName;
-            o0PotentialTargetOriginalParent = oLNKFileTarget.o0Parent;
+            sPotentialRelativeTargetPath = o0LNKFileTarget.sName;
+            o0PotentialTargetOriginalParent = o0LNKFileTarget.o0Parent;
             while o0PotentialTargetOriginalParent:
               o0PotentialTarget = oSelf.oRootFileSystemItem.fo0GetDescendant(sPotentialRelativeTargetPath, bThrowErrors = False);
               if o0PotentialTarget and o0PotentialTarget.fbExists():
                 sRelativeTargetPath = sPotentialRelativeTargetPath;
-                oLNKFileTarget = o0PotentialTarget;
+                o0LNKFileTarget = o0PotentialTarget;
                 bLinkIsValid = True;
-                if not fbSetLNKFileTarget(oSelf.oFileSystemItem, oLNKFileTarget):
+                if not fbSetLNKFileTarget(oSelf.oFileSystemItem, o0LNKFileTarget):
                   oConsole.fOutput(
                     "  ",
                     COLOR_ERROR, CHAR_ERROR,
                     COLOR_NORMAL, " Cannot redirect the link to ",
-                    COLOR_INFO, oLNKFileTarget.sPath,
+                    COLOR_INFO, o0LNKFileTarget.sPath,
                     COLOR_NORMAL, ".",
                   );
                 else:
@@ -147,7 +146,7 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
                     "  ",
                     COLOR_WARNING, CHAR_WARNING,
                     COLOR_NORMAL, " The link has been redirected to ",
-                    COLOR_INFO, oLNKFileTarget.sPath,
+                    COLOR_INFO, o0LNKFileTarget.sPath,
                     COLOR_NORMAL, ".",
                   );
                 break;
@@ -170,14 +169,14 @@ class cFileSystemTreeNode(cTreeServer.cTreeNode):
             oSelf.sName = oSelf.sName[:-4]; # remove ".lnk";
             oSelf.sToolTip = "Link to %s" % sRelativeTargetPath;
             oSelf.fLinkToNodeId(os.sep + sRelativeTargetPath);
-            if oLNKFileTarget.fbIsFile():
+            if o0LNKFileTarget.fbIsFile():
               oIconFile = goLinkToInternalFileIconFile 
               aoChildFileSystemItems = None;
             else:
               oIconFile = goLinkToInternalFolderIconFile;
               aoChildFileSystemItems = [];
       elif s0Extension.lower() == "url":
-        o0URLFileTarget = fo0GetLinkFileTargetURL(oSelf.oFileSystemItem);
+        o0URLFileTarget = fo0GetLNKFileTargetURL(oSelf.oFileSystemItem);
         if o0URLFileTarget is None:
           oIconFile = goBrokenLinkIconFile;
         else:
