@@ -11,7 +11,8 @@ except ModuleNotFoundError as oException:
 else:
   tcException = (cHTTPException, cTCPIPException, cSSLException);
 
-from mConsole import oConsole;
+from foConsoleLoader import foConsoleLoader;
+oConsole = foConsoleLoader();
 
 from mColorsAndChars import *;
 

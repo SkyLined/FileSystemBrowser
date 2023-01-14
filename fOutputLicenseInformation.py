@@ -1,11 +1,9 @@
-import os, platform;
-
 import mProductDetails;
-from mWindowsAPI import fsGetPythonISA, oSystemInfo;
-from mConsole import oConsole;
 
 from faxListOutput import faxListOutput;
+from foConsoleLoader import foConsoleLoader;
 from mColorsAndChars import *;
+oConsole = foConsoleLoader();
 
 try:
   from fOutputLogo import fOutputLogo as f0OutputLogo;

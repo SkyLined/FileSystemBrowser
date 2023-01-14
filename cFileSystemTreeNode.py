@@ -2,7 +2,8 @@ import codecs, os;
 
 from mTreeServer import cTreeServer;
 import mHTTPProtocol;
-from mConsole import oConsole;
+from foConsoleLoader import foConsoleLoader;
+oConsole = foConsoleLoader();
 
 from cMailToURL import cMailToURL;
 from fbSetLNKFileTarget import fbSetLNKFileTarget;

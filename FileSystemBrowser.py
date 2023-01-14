@@ -24,7 +24,8 @@ try:
   from mTreeServer import cTreeServer;
   from mFileSystemItem import cFileSystemItem;
   from mNotProvided import *;
-  from mConsole import oConsole;
+  from foConsoleLoader import foConsoleLoader;
+  oConsole = foConsoleLoader();
   
   from fatsArgumentLowerNameAndValue import fatsArgumentLowerNameAndValue;
   from mColorsAndChars import *;

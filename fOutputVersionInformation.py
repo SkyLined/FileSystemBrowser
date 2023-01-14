@@ -2,7 +2,8 @@ import os, platform;
 
 import mProductDetails;
 from mWindowsAPI import fsGetPythonISA, oSystemInfo;
-from mConsole import oConsole;
+from foConsoleLoader import foConsoleLoader;
+oConsole = foConsoleLoader();
 
 from faxListOutput import faxListOutput;
 from mColorsAndChars import *;

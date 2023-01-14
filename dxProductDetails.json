@@ -3,7 +3,6 @@
     "mDebugOutput"
   ],
   "a0sDependentOnProductNames": [
-    "mConsole",
     "mDateTime",
     "mFileSystemItem",
     "mHTTPConnection",
@@ -22,6 +21,7 @@
     "FileSystemBrowser"
   ],
   "a0sReleaseAdditionalProductNames": [
+    "mConsole",
     "mHTTPClient",
     "mHTTPServer",
     "mSSL"
