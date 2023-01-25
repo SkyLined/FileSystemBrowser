@@ -30,7 +30,6 @@ try:
   from cFileSystemTreeNode import cFileSystemTreeNode;
   from mTreeServer import cTreeServer;
   from mFileSystemItem import cFileSystemItem;
-  from mNotProvided import *;
   from foConsoleLoader import foConsoleLoader;
   oConsole = foConsoleLoader();
   
