@@ -1,6 +1,3 @@
-[submodule "modules/mConsole"]
-	path = modules/mConsole
-	url = https://github.com/SkyLined/mConsole
 [submodule "modules/mDateTime"]
 	path = modules/mDateTime
 	url = https://github.com/SkyLined/mDateTime
@@ -25,18 +22,9 @@
 [submodule "modules/mProductDetails"]
 	path = modules/mProductDetails
 	url = https://github.com/SkyLined/mProductDetails
-[submodule "modules/mRegistry"]
-	path = modules/mRegistry
-	url = https://github.com/SkyLined/mRegistry
 [submodule "modules/mTCPIPConnection"]
 	path = modules/mTCPIPConnection
 	url = https://github.com/SkyLined/mTCPIPConnection
 [submodule "modules/mTreeServer"]
 	path = modules/mTreeServer
 	url = https://github.com/SkyLined/mTreeServer
-[submodule "modules/mWindowsAPI"]
-	path = modules/mWindowsAPI
-	url = https://github.com/SkyLined/mWindowsAPI
-[submodule "modules/mWindowsSDK"]
-	path = modules/mWindowsSDK
-	url = https://github.com/SkyLined/mWindowsSDK
