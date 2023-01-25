@@ -255,7 +255,7 @@ try:
                 COLOR_NORMAL, " Cannot write ",
                 COLOR_INFO, str(len(sb0Data)),
                 COLOR_NORMAL, " bytes to ",
-                COLOR_INFO, oOfflineFile.sPath,
+                COLOR_INFO, o0OfflineFile.sPath,
                 COLOR_NORMAL, "!",
               );
               sys.exit(guExitCodeCannotWriteToFileSystem);
