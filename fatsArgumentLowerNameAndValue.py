@@ -1,11 +1,14 @@
-import sys;
+import os, sys;
+
+import mProductDetails;
+from mProductDetails import faoGetLicensesFromRegistry, faoGetLicensesFromFile;
+from mFileSystemItem import cFileSystemItem;
 
 from fOutputUsageInformation import fOutputUsageInformation;
 from fOutputVersionInformation import fOutputVersionInformation;
 from fOutputLicenseInformation import fOutputLicenseInformation;
 from mColorsAndChars import *;
 from mExitCodes import *;
-from mProductDetails import faoGetLicensesFromRegistry, faoGetLicensesFromFile;
 
 def fExitWithBadArgumentValue(sArgumentName, sMessage):
   oConsole.fOutput(
