@@ -26,6 +26,10 @@ def fsOutputArgumentsToString(txArguments):
 class oConsoleStandIn(object):
   uCurrentLineLength = 0;
   uCurrentColor = 0xFF07;
+  uDefaultColor = 0;
+  uDefaultBarColor = 0;
+  uDefaultProgressColor = 0;
+  uDefaultSubProgressColor = 0;
   uWindowWidth = 80;
   uWidth = 80;
   oLock = threading.Lock();
@@ -45,7 +49,7 @@ class oConsoleStandIn(object):
     cClass.oLock.release();
   @classmethod
   def fCleanup(cClass):
-    print("\r" + sOutput.ljust(cClass.uCurrentLineLength) + "\r", sep="", end="", flush=True);
+    print("\r".ljust(cClass.uCurrentLineLength) + "\r", sep="", end="", flush=True);
     cClass.uCurrentLineLength = 0;
   @classmethod
   def fOutput(cClass, *txArguments, **dxArguments):
@@ -59,7 +63,7 @@ class oConsoleStandIn(object):
     cClass.uCurrentLineLength = len(sOutput);
   @classmethod
   def fProgressBar(cClass, nProgress, sMessage = "", **dxArguments):
-    cCLass.fStatus(int(100 * nProgress), "%", sMessage);
+    cClass.fStatus(int(100 * nProgress), "%", sMessage);
   @classmethod
   def fSetTitele(cClass, sTitle):
     pass;

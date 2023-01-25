@@ -1,10 +1,16 @@
 import math, platform, sys;
 
 import mProductDetails;
-from foConsoleLoader import foConsoleLoader;
-oConsole = foConsoleLoader();
 
-from mColorsAndChars import *;
+from foConsoleLoader import foConsoleLoader;
+from mColorsAndChars import \
+    COLOR_ERROR, CHAR_ERROR, \
+    COLOR_LIST, CHAR_LIST, \
+    COLOR_OK, CHAR_OK, \
+    COLOR_WARNING, CHAR_WARNING, \
+    COLOR_HILITE, COLOR_INFO, COLOR_NORMAL, \
+    CONSOLE_UNDERLINE;
+oConsole = foConsoleLoader();
 
 try:
   from fOutputLogo import fOutputLogo as f0OutputLogo;
@@ -27,7 +33,7 @@ def fOutputProductDetails(oProductDetails, bIsMainProduct, bShowInstallationFold
             oProductDetails.bHasTrialPeriod and oProductDetails.bInTrialPeriod
           )
         ) else
-        [COLOR_NORMAL, CHAR_LIST] if bCheckForUpdates and bCheckForUpdatesSuccessful and oProductDetails.bVersionIsPreRelease else
+        [COLOR_LIST, CHAR_LIST] if bCheckForUpdates and bCheckForUpdatesSuccessful and oProductDetails.bVersionIsPreRelease else
         [COLOR_OK, CHAR_OK] if oProductDetails.o0License or not oProductDetails.bRequiresLicense else
         [COLOR_ERROR, CHAR_ERROR]
       ), " ", (
@@ -118,7 +124,9 @@ def fOutputVersionInformation(bCheckForUpdates, bShowInstallationFolders, dsAddi
       f0OutputLogo();
     
     oConsole.fOutput(
-      "┌───[", COLOR_HILITE, " Version information ", COLOR_NORMAL, "]", sPadding = "─",
+      COLOR_NORMAL, "┌───[",
+      COLOR_HILITE, " Version information ",
+      COLOR_NORMAL, "]", sPadding = "─",
     );
     # Output the main product information first, then its dependencies alphabetically:
     if o0MainProductDetails:
@@ -144,14 +152,18 @@ def fOutputVersionInformation(bCheckForUpdates, bShowInstallationFolders, dsAddi
         bCheckForUpdatesSuccessful = oProductDetails in aoProductDetailsSuccessfullyCheckedForUpdates,
       );
     oConsole.fOutput(
-      "│ ", CHAR_LIST, " ", COLOR_INFO, "Platform",
+      COLOR_NORMAL, "│ ",
+      COLOR_LIST, CHAR_LIST,
+      COLOR_NORMAL, " ", COLOR_INFO, "Platform",
       COLOR_NORMAL, " OS: ", COLOR_INFO, platform.platform(),
       COLOR_NORMAL, " on ", COLOR_INFO, platform.machine(),
       COLOR_NORMAL, " processor.",
     );
     uProcessISABits = math.log(sys.maxsize + 1, 2) + 1;
     oConsole.fOutput(
-      "│ ", CHAR_LIST, " ", COLOR_INFO, "Python",
+      COLOR_NORMAL, "│ ",
+      COLOR_LIST, CHAR_LIST,
+      COLOR_NORMAL, " ", COLOR_INFO, "Python",
       COLOR_NORMAL, " version: ", COLOR_INFO, str(platform.python_version()),
       COLOR_NORMAL, ", ", COLOR_INFO, "%d" % uProcessISABits, " bit",
       COLOR_NORMAL, ".",
@@ -159,13 +171,15 @@ def fOutputVersionInformation(bCheckForUpdates, bShowInstallationFolders, dsAddi
     
     for (sName, sVersion) in dsAdditionalVersion_by_sName.items():
       oConsole.fOutput(
-        "│ ", CHAR_LIST, " ", COLOR_INFO, sName,
+        COLOR_NORMAL, "│ ",
+        COLOR_LIST, CHAR_LIST,
+        COLOR_NORMAL, " ", COLOR_INFO, sName,
         COLOR_NORMAL, " version: ", COLOR_INFO, sVersion,
         COLOR_NORMAL, ".",
       );
     
     oConsole.fOutput(
-      "└", sPadding = "─",
+      COLOR_NORMAL, "└", sPadding = "─",
     );
   finally:
     oConsole.fUnlock();

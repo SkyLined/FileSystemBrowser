@@ -2,7 +2,11 @@ import mProductDetails;
 
 from faxListOutput import faxListOutput;
 from foConsoleLoader import foConsoleLoader;
-from mColorsAndChars import *;
+from mColorsAndChars import \
+    COLOR_ERROR, CHAR_ERROR, \
+    COLOR_OK, CHAR_OK, \
+    COLOR_WARNING, CHAR_WARNING, \
+    COLOR_HILITE, COLOR_INFO, COLOR_NORMAL;
 oConsole = foConsoleLoader();
 
 try:
