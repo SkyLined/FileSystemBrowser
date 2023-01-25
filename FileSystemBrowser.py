@@ -20,6 +20,13 @@ try:
     if oException.args[0] != "No module named 'mHTTPClient'":
       raise;
     m0HTTPClient = None;
+  else:
+    try: # m0HTTPProtocol use is Optional but can only be used if mHTTPClient is loaded.
+      import mHTTPProtocol as m0HTTPProtocol;
+    except ModuleNotFoundError as oException:
+      if oException.args[0] != "No module named 'mHTTPProtocol'":
+        raise;
+      m0HTTPProtocol = None;
   from cFileSystemTreeNode import cFileSystemTreeNode;
   from mTreeServer import cTreeServer;
   from mFileSystemItem import cFileSystemItem;
@@ -73,6 +80,10 @@ try:
           oConsole.fOutput(COLOR_ERROR, CHAR_ERROR, COLOR_NORMAL, " The optional ", COLOR_INFO, "mHTTPClient", COLOR_NORMAL, " module is not available.");
           oConsole.fOutput("  Please download this module before using the ", COLOR_INFO, s0LowerName, COLOR_NORMAL, " argument.");
           sys.exit(guExitCodeBadArgument);
+        if m0HTTPProtocol is None:
+          oConsole.fOutput(COLOR_ERROR, CHAR_ERROR, COLOR_NORMAL, " The optional ", COLOR_INFO, "mHTTPProtocol", COLOR_NORMAL, " module is not available.");
+          oConsole.fOutput("  Please download this module before using the ", COLOR_INFO, s0LowerName, COLOR_NORMAL, " argument.");
+          sys.exit(guExitCodeBadArgument);
         tsHostnameAndPortNumber = s0Value.split(":") if s0Value else [];
         sHostname = tsHostnameAndPortNumber[0] if len(tsHostnameAndPortNumber) == 2 else None;
         try:
@@ -84,7 +95,7 @@ try:
           oConsole.fOutput("  ", COLOR_INFO, s0Value);
           oConsole.fOutput("  You must provide a valid 'hostname:port' value for the http proxy.");
           sys.exit(guExitCodeBadArgument);
-        oProxyServerURL = mHTTPProtocol.cURL("http", sHostname, u0PortNumber);
+        oProxyServerURL = m0HTTPProtocol.cURL("http", sHostname, u0PortNumber);
         aoHTTPClients.append(m0HTTPClient.cHTTPClientUsingProxyServer(oProxyServerURL, nzTransactionTimeoutInSeconds = nzHTTPRequestTimeoutInSeconds));
       elif s0LowerName == "http-timeout":
         if not s0Value:
