@@ -176,7 +176,11 @@ try:
         fConsoleOutputOrStatus = oConsole.fOutput if bDebug else oConsole.fStatus;
         for sRelativePath in sorted(asExistingAndNewOfflineFileRelativePaths, key=lambda sString: sString.lower()):
           xOfflineFileOrData = dxOfflineFileOrData_by_sRelativePath.get(sRelativePath);
-          fAssertType("xOfflineFileOrData for sRelativePath %s" % repr(sRelativePath), xOfflineFileOrData, cFileSystemItem, str);
+          assert isinstance(xOfflineFileOrData, (cFileSystemItem, str)), \
+              "dxOfflineFileOrData_by_sRelativePath[%s] == %s, expected cFileSystemItem instance or str" % (
+                repr(sRelativePath),
+                repr(xOfflineFileOrData),
+              );
           if isinstance(xOfflineFileOrData, cFileSystemItem):
             sb0Data = xOfflineFileOrData.fsb0Read(bThrowErrors = bDebug);
           else:
