@@ -19,7 +19,7 @@ class cMailToURL(object):
   @classmethod
   def foFromBytesString(cClass, sbMailToURL):
     assert cClass.fbIsValidMailToURL(sbMailToURL), \
-        "%s is not a valid %s: URL" % (repr(sbMailToURL), str(sbProtocol, "ascii", "strict"));
+        "%s is not a valid mailto: URL" % (repr(sbMailToURL),);
     return cClass(sbMailToURL[len(cClass.sbProtocol) + 1:]);
   
   def __init__(oSelf, sbEMailAddress):
