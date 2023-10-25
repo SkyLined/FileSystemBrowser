@@ -31,3 +31,6 @@
 [submodule "modules/mTreeServer"]
 	path = modules/mTreeServer
 	url = https://github.com/SkyLined/mTreeServer
+[submodule "modules/mWindowsAPI"]
+	path = modules/mWindowsAPI
+	url = https://github.com/SkyLined/mWindowsAPI
