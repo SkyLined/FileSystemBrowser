@@ -22,9 +22,15 @@
 [submodule "modules/mProductDetails"]
 	path = modules/mProductDetails
 	url = https://github.com/SkyLined/mProductDetails
+[submodule "modules/mRegistry"]
+	path = modules/mRegistry
+	url = https://github.com/SkyLined/mRegistry
 [submodule "modules/mTCPIPConnection"]
 	path = modules/mTCPIPConnection
 	url = https://github.com/SkyLined/mTCPIPConnection
 [submodule "modules/mTreeServer"]
 	path = modules/mTreeServer
 	url = https://github.com/SkyLined/mTreeServer
+[submodule "modules/mWindowsSDK"]
+	path = modules/mWindowsSDK
+	url = https://github.com/SkyLined/mWindowsSDK
