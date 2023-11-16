@@ -11,8 +11,10 @@
     "mMultiThreading",
     "mNotProvided",
     "mProductDetails",
+    "mRegistry",
     "mTCPIPConnection",
-    "mTreeServer"
+    "mTreeServer",
+    "mWindowsSDK"
   ],
   "a0sPythonApplicationNames": [
     "FileSystemBrowser"
@@ -21,7 +23,6 @@
     "mConsole",
     "mHTTPClient",
     "mHTTPServer",
-    "mRegistry",
     "mSSL",
     "mWindowsAPI",
     "mWindowsSDK"
